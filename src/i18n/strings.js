@@ -90,6 +90,7 @@ export const strings = {
     viewAllHistory: 'View all →',
     switchToDark: 'Switch to dark theme',
     switchToLight: 'Switch to light theme',
+    menu: 'Menu',
   },
   ru: {
     appName: 'CertBrew',
@@ -182,5 +183,6 @@ export const strings = {
     viewAllHistory: 'Смотреть всё →',
     switchToDark: 'Включить тёмную тему',
     switchToLight: 'Включить светлую тему',
+    menu: 'Меню',
   },
 }
