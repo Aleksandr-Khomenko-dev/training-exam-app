@@ -1,0 +1,78 @@
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --border: #e3e7f0;
+  --text: #1b2233;
+  --text-muted: #667085;
+  --accent: #2563eb;
+  --success: #059669;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  color-scheme: light;
+}
+
+/* Night theme — soft dark grays rather than pure black, kept easy on the eyes for long
+   study sessions. Applies automatically when the OS is set to dark mode (and no explicit
+   in-app choice has been made yet), or whenever the user picks it via the toggle. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0e1320;
+    --surface: #171d2e;
+    --surface-raised: #1e2537;
+    --border: #2b3350;
+    --text: #e7eaf3;
+    --text-muted: #93a0c2;
+    --accent: #5b8dff;
+    --success: #34d399;
+    --danger: #f87171;
+    --warning: #fbbf24;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0e1320;
+  --surface: #171d2e;
+  --surface-raised: #1e2537;
+  --border: #2b3350;
+  --text: #e7eaf3;
+  --text-muted: #93a0c2;
+  --accent: #5b8dff;
+  --success: #34d399;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.15s, color 0.15s;
+}
+
+button {
+  font-family: inherit;
+}
+
+pre {
+  font-family: 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
