@@ -16,6 +16,15 @@ function DashboardIcon() {
   )
 }
 
+function LogOutIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M6 2H3.5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10.5 11l3-3-3-3M13 8H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 function MenuIcon({ open }) {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -30,7 +39,7 @@ function MenuIcon({ open }) {
   )
 }
 
-export default function TabNav({ sections, active, onSelect, onOpenHistory, onOpenDashboard, historyActive, dashboardActive }) {
+export default function TabNav({ sections, active, onSelect, onOpenHistory, onOpenDashboard, onLogOut, historyActive, dashboardActive }) {
   const { lang, setLang, t } = useLanguage()
   const { theme, toggleTheme } = useTheme()
   const noneActive = historyActive || dashboardActive
@@ -92,6 +101,9 @@ export default function TabNav({ sections, active, onSelect, onOpenHistory, onOp
         </button>
       </div>
       <div className="tab-nav__controls">
+        <button className="theme-toggle" onClick={onLogOut} aria-label={t.logOut} title={t.logOut}>
+          <LogOutIcon />
+        </button>
         <button
           className="theme-toggle"
           onClick={toggleTheme}

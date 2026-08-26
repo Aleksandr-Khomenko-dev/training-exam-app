@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { sections, getSection } from './data/sections.js'
 import { useProgress } from './hooks/useProgress.js'
+import { useAuth } from './hooks/useAuth.js'
 import { LanguageProvider } from './i18n/LanguageContext.jsx'
 import { ThemeProvider } from './i18n/ThemeContext.jsx'
 import TabNav from './components/TabNav.jsx'
@@ -9,19 +10,40 @@ import SectionHome from './components/SectionHome.jsx'
 import TestRunner from './components/TestRunner.jsx'
 import ResultsScreen from './components/ResultsScreen.jsx'
 import HistoryScreen from './components/HistoryScreen.jsx'
+import LoginScreen from './components/LoginScreen.jsx'
 import './App.css'
 
 export default function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <AppShell />
+        <Gate />
       </LanguageProvider>
     </ThemeProvider>
   )
 }
 
-function AppShell() {
+// Simple local login gate — remembers the session in localStorage so returning to the app
+// on the same device/browser skips straight past this screen. There is no backend, so this
+// cannot be real multi-device authentication; it's a personal lock screen for this app.
+function Gate() {
+  const auth = useAuth()
+
+  if (!auth.loggedIn) {
+    return (
+      <LoginScreen
+        hasAccount={!!auth.account}
+        onSignUp={auth.signUp}
+        onLogIn={auth.logIn}
+        onResetAccount={auth.resetAccount}
+      />
+    )
+  }
+
+  return <AppShell onLogOut={auth.logOut} />
+}
+
+function AppShell({ onLogOut }) {
   const [activeKey, setActiveKey] = useState('OCA')
   const [view, setView] = useState('dashboard') // 'dashboard' | 'home' | 'test' | 'results' | 'history'
   const [activeQuestions, setActiveQuestions] = useState([])
@@ -77,6 +99,7 @@ function AppShell() {
         onSelect={selectSection}
         onOpenHistory={() => setView('history')}
         onOpenDashboard={() => setView('dashboard')}
+        onLogOut={onLogOut}
         historyActive={view === 'history'}
         dashboardActive={view === 'dashboard'}
       />
