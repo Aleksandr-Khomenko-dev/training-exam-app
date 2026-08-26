@@ -371,6 +371,11 @@
   accent-color: var(--accent);
 }
 
+.start-panel__hint {
+  color: var(--warning);
+  font-style: italic;
+}
+
 .btn-primary,
 .btn-secondary {
   border-radius: 10px;

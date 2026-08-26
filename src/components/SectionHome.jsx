@@ -13,11 +13,39 @@ function shuffle(arr) {
 
 // Picks n questions from the pool, favoring ones that were never seen (or seen longest ago),
 // so repeated visits surface fresh material instead of the same random subset every time.
+//
+// Questions can opt into a `variantGroup`: several questions that test the same underlying
+// concept with different surface details (different variable names, numbers, code shape).
+// Freshness is scheduled per *concept* (the group), not per literal question — and once a
+// concept comes up again, whichever of its variants was shown least recently is the one
+// picked. That way, correctly answering one variant doesn't make you see the exact same
+// question again next time; a sibling variant testing the same rule steps in instead,
+// which pushes you to actually understand the rule rather than memorize one instance of it.
+// Questions without a variantGroup behave exactly as before (a group of one).
 function pickFreshQuestions(pool, n, questionStats) {
-  const ranked = pool
-    .map((q) => ({ q, lastSeenAt: questionStats[q.id]?.lastSeenAt ?? 0, rand: Math.random() }))
-    .sort((a, b) => a.lastSeenAt - b.lastSeenAt || a.rand - b.rand)
-  return shuffle(ranked.slice(0, n).map((r) => r.q))
+  const groups = new Map()
+  for (const q of pool) {
+    const key = q.variantGroup ?? q.id
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key).push(q)
+  }
+
+  const rankedGroups = [...groups.values()]
+    .map((variants) => ({
+      variants,
+      groupLastSeenAt: Math.max(0, ...variants.map((v) => questionStats[v.id]?.lastSeenAt ?? 0)),
+      rand: Math.random(),
+    }))
+    .sort((a, b) => a.groupLastSeenAt - b.groupLastSeenAt || a.rand - b.rand)
+
+  const picked = rankedGroups.slice(0, n).map(({ variants }) => {
+    if (variants.length === 1) return variants[0]
+    return variants
+      .map((v) => ({ v, lastSeenAt: questionStats[v.id]?.lastSeenAt ?? 0, rand: Math.random() }))
+      .sort((a, b) => a.lastSeenAt - b.lastSeenAt || a.rand - b.rand)[0].v
+  })
+
+  return shuffle(picked)
 }
 
 const GENERIC_SEC_PER_QUESTION = 90 // used for sections with no official exam timing (Interview, Code)
@@ -206,6 +234,9 @@ export default function SectionHome({ section, progress, onStart, onResetSection
             onChange={(e) => setCount(Number(e.target.value))}
           />
           <span>{t.ofAvailable(Math.min(count, availableCount), availableCount)}</span>
+          {availableCount > 0 && Math.min(count, availableCount) >= availableCount && (
+            <span className="start-panel__hint">{t.smallPoolHint(availableCount)}</span>
+          )}
         </label>
         <label className="timed-toggle">
           <input type="checkbox" checked={timed} onChange={(e) => setTimed(e.target.checked)} />

@@ -157,6 +157,54 @@ const raw = {
           'Классические четыре столпа ООП — это инкапсуляция, абстракция, наследование и полиморфизм — инкапсуляция (сокрытие внутреннего состояния за контролируемым интерфейсом) и полиморфизм (единый интерфейс/тип ссылки, ведущий себя по-разному в зависимости от реального лежащего в основе объекта) — два из них и присутствуют здесь. Компиляция — общее понятие языков программирования (перевод исходного кода в исполняемую форму), не имеющее особой связи именно с ООП, а сериализация — механизм преобразования объектов в сохраняемое/передаваемое байтовое представление — полезная возможность, которую поддерживают многие классы Java, но сама по себе не один из основополагающих принципов, определяющих, что такое объектно-ориентированное программирование.',
       },
     },
+    {
+      q: 'You override equals() on a Point class to compare by x and y fields, but you don\'t override hashCode(). What happens when you put two logically equal Point objects into a HashSet?',
+      options: [
+        'Both objects can end up in the set as separate entries — the set may report a size of 2 even though equals() says they\'re the same',
+        'The second insertion is automatically rejected because equals() returns true',
+        'A compilation error occurs because hashCode() must be overridden whenever equals() is',
+        'The set automatically merges them and calls equals() to keep only one',
+      ],
+      correct: [0],
+      variantGroup: 'interview-equals-hashcode-contract',
+      explanation:
+        'HashSet locates a candidate bucket via hashCode() first, and only then confirms a match via equals() among entries already in that bucket. Since hashCode() was left at its Object default (identity-based), two logically-equal Points almost always produce different hash codes and land in different buckets — meaning equals() between them is never even called, so both get added as if they were distinct objects, inflating size() to 2 despite equals() saying they represent the same point. Nothing about this is checked at compile time, which is exactly why it\'s a dangerous, silent runtime bug rather than an error you\'d catch immediately.',
+      ru: {
+        question: 'Вы переопределяете equals() у класса Point, сравнивая по полям x и y, но не переопределяете hashCode(). Что произойдёт, если положить два логически равных объекта Point в HashSet?',
+        options: [
+          'Оба объекта могут оказаться в множестве как отдельные записи — размер множества может показать 2, хотя equals() говорит, что они одинаковы',
+          'Вторая вставка автоматически отклоняется, потому что equals() возвращает true',
+          'Произойдёт ошибка компиляции, потому что hashCode() обязательно нужно переопределять вместе с equals()',
+          'Множество автоматически объединит их, вызвав equals(), и оставит только одну запись',
+        ],
+        explanation:
+          'HashSet сначала находит корзину через hashCode(), и только потом подтверждает совпадение через equals() среди уже находящихся в этой корзине записей. Поскольку hashCode() остался дефолтным от Object (на основе identity), два логически равных Point почти всегда дают разные хеш-коды и попадают в разные корзины — а значит equals() между ними вообще ни разу не вызывается, и оба добавляются как будто это разные объекты, раздувая size() до 2, хотя equals() говорит, что это одна и та же точка. Компилятор это никак не проверяет, именно поэтому это опасный, тихий баг времени выполнения, а не ошибка, которую вы поймаете сразу.',
+      },
+    },
+    {
+      q: 'You override equals() on an Employee class to compare by employeeId, but leave hashCode() as the default from Object. What happens when you add two Employee objects with the same employeeId to a HashSet?',
+      options: [
+        'Both can end up stored as separate entries — the set\'s size may show 2 even though equals() considers them the same employee',
+        'The second insertion is automatically rejected because equals() returns true',
+        'A compilation error occurs because hashCode() must be overridden whenever equals() is',
+        'The JVM automatically generates a matching hashCode() at runtime to keep them consistent',
+      ],
+      correct: [0],
+      variantGroup: 'interview-equals-hashcode-contract',
+      explanation:
+        'The same equals()/hashCode() contract violation applies regardless of the class: HashSet buckets entries by hashCode() first and only checks equals() within a bucket. With hashCode() untouched (identity-based), two Employee objects with the same employeeId typically hash differently and land in separate buckets, so equals() is never consulted between them and both get stored — size() shows 2 for what equals() calls "the same employee". There is no compile-time enforcement of "override hashCode() whenever you override equals()" — it\'s a convention documented on Object, and violating it produces exactly this kind of silent collection-consistency bug.',
+      ru: {
+        question: 'Вы переопределяете equals() у класса Employee, сравнивая по полю employeeId, но оставляете hashCode() дефолтным от Object. Что произойдёт при добавлении двух объектов Employee с одинаковым employeeId в HashSet?',
+        options: [
+          'Оба могут оказаться сохранены как отдельные записи — размер множества может показать 2, хотя equals() считает их одним и тем же сотрудником',
+          'Вторая вставка автоматически отклоняется, потому что equals() возвращает true',
+          'Произойдёт ошибка компиляции, потому что hashCode() обязательно нужно переопределять вместе с equals()',
+          'JVM автоматически сгенерирует подходящий hashCode() во время выполнения, чтобы сохранить согласованность',
+        ],
+        explanation:
+          'То же самое нарушение контракта equals()/hashCode() применимо к любому классу: HashSet сначала раскладывает записи по корзинам через hashCode(), и только внутри корзины проверяет equals(). Если hashCode() не тронут (основан на identity), два объекта Employee с одинаковым employeeId обычно дают разные хеши и попадают в разные корзины, поэтому equals() между ними вообще не вызывается, и оба сохраняются — size() показывает 2 для того, что equals() называет "одним и тем же сотрудником". Компилятор никак не принуждает к правилу "переопределяй hashCode() вместе с equals()" — это соглашение, задокументированное в Object, и его нарушение даёт ровно такой тихий баг согласованности коллекции.',
+      },
+    },
   ],
   collections: [
     {
@@ -298,6 +346,54 @@ const raw = {
         options: ['TreeSet', 'HashSet', 'TreeMap', 'HashMap'],
         explanation:
           'TreeSet и TreeMap оба внутри основаны на красно-чёрном дереве и явно задокументированы как постоянно хранящие элементы/ключи упорядоченными — TreeSet по естественному порядку элементов (или переданному Comparator), TreeMap так же, но для своих ключей, — поэтому любая итерация по любому из них всегда проходит элементы в отсортированной последовательности. HashSet и HashMap, напротив, размещают элементы согласно раскладке по хеш-корзинам, что вообще никак не связано ни с каким естественным или числовым порядком; их порядок итерации по сути непредсказуем, и на него никогда не следует полагаться как на отсортированный, или даже стабильный между разными запусками одной и той же программы.',
+      },
+    },
+    {
+      q: 'A list holds 1,000,000 elements. What is the time complexity of calling list.get(500_000) if the list is an ArrayList versus a LinkedList?',
+      options: [
+        'O(1) for ArrayList (direct index into a backing array); O(n) for LinkedList (must walk node-by-node from an end)',
+        'O(n) for both, since get() always has to search for the element',
+        'O(1) for both — get() is guaranteed constant time by the List interface',
+        'O(log n) for ArrayList; O(1) for LinkedList',
+      ],
+      correct: [0],
+      variantGroup: 'interview-arraylist-linkedlist-get',
+      explanation:
+        'ArrayList is backed by a real contiguous array, so get(index) computes the target memory offset directly — constant time no matter the list size or which index is requested. LinkedList has no random-access backing storage at all; each node only knows its immediate neighbors, so reaching a given index means traversing that many node-to-node hops from whichever end is closer, making it linear time in the worst case. This is exactly why LinkedList is a poor fit when random-access reads dominate, even though it\'s the stronger choice for frequent insertions/removals at arbitrary positions (which don\'t require shifting elements the way ArrayList does).',
+      ru: {
+        question: 'Список содержит 1 000 000 элементов. Какова временная сложность вызова list.get(500_000), если список — ArrayList, и если это LinkedList?',
+        options: [
+          'O(1) для ArrayList (прямой доступ по индексу к внутреннему массиву); O(n) для LinkedList (нужно пройти узел за узлом от одного из концов)',
+          'O(n) для обоих, так как get() всегда ищет элемент',
+          'O(1) для обоих — get() гарантированно константен по контракту интерфейса List',
+          'O(log n) для ArrayList; O(1) для LinkedList',
+        ],
+        explanation:
+          'ArrayList опирается на настоящий непрерывный массив, поэтому get(index) напрямую вычисляет нужное смещение в памяти — константное время независимо от размера списка или запрашиваемого индекса. У LinkedList вообще нет хранилища с произвольным доступом; каждый узел знает только соседние узлы, поэтому достижение нужного индекса означает проход через столько же переходов узел-за-узлом от того конца, что ближе, что даёт линейное время в худшем случае. Именно поэтому LinkedList — плохой выбор, когда преобладает чтение по произвольному индексу, хотя он лучше подходит для частых вставок/удалений в произвольных позициях (которые не требуют сдвига элементов, как у ArrayList).',
+      },
+    },
+    {
+      q: 'A list holds 100,000 elements. What is the time complexity of calling list.get(50_000) if the list is an ArrayList versus a LinkedList?',
+      options: [
+        'O(1) for ArrayList (direct index into a backing array); O(n) for LinkedList (must walk node-by-node from an end)',
+        'O(n) for both, since get() always has to search for the element',
+        'O(1) for both — get() is guaranteed constant time by the List interface',
+        'O(log n) for ArrayList; O(1) for LinkedList',
+      ],
+      correct: [0],
+      variantGroup: 'interview-arraylist-linkedlist-get',
+      explanation:
+        'Same underlying structural difference, regardless of list size: ArrayList\'s contiguous backing array lets get(index) jump straight to the right memory offset in constant time, while LinkedList must hop from node to node — from the closer end — to reach the target index, costing time proportional to how far in that index is, i.e. O(n) in the worst case. Doubling or halving the list size (or the requested index) doesn\'t change which structure is asymptotically better here; it only changes how painful the LinkedList traversal actually is in practice.',
+      ru: {
+        question: 'Список содержит 100 000 элементов. Какова временная сложность вызова list.get(50_000), если список — ArrayList, и если это LinkedList?',
+        options: [
+          'O(1) для ArrayList (прямой доступ по индексу к внутреннему массиву); O(n) для LinkedList (нужно пройти узел за узлом от одного из концов)',
+          'O(n) для обоих, так как get() всегда ищет элемент',
+          'O(1) для обоих — get() гарантированно константен по контракту интерфейса List',
+          'O(log n) для ArrayList; O(1) для LinkedList',
+        ],
+        explanation:
+          'То же самое структурное отличие, независимо от размера списка: непрерывный внутренний массив ArrayList позволяет get(index) сразу перейти к нужному смещению в памяти за константное время, а LinkedList вынужден переходить от узла к узлу — от ближайшего конца — чтобы достичь нужного индекса, что стоит времени, пропорционального удалённости этого индекса, то есть O(n) в худшем случае. Удвоение или уменьшение вдвое размера списка (или запрашиваемого индекса) не меняет, какая структура асимптотически лучше здесь — меняется только то, насколько на практике болезненным окажется проход по LinkedList.',
       },
     },
   ],
@@ -463,6 +559,54 @@ const raw = {
           'synchronized действительно можно применять в двух синтаксических формах — как модификатор целого метода (`synchronized void foo() {...}`) или обёрнутым вокруг произвольного блока кода, нацеленного на блокировку конкретного объекта (`synchronized (someObject) { ... }`), второй вариант даёт более тонкий контроль над тем, сколько именно кода выполняется под блокировкой. Его фундаментальное поведение ровно в том, что в любой момент только один поток может удерживать внутренний монитор данного объекта, это и сериализует доступ. Он совершенно не гарантирует выполнение без deadlock — плохо упорядоченные вложенные synchronized-блоки на нескольких объектах могут привести к deadlock точно так же, как и любой другой механизм блокировок, как рассматривалось ранее в этой теме, — и он координирует потоки только в пределах одного процесса JVM; он вообще не действует между разными процессами JVM или машинами, для чего потребовался бы совершенно другой механизм вроде распределённой блокировки.',
       },
     },
+    {
+      q: 'Two threads each execute `count++` on a shared, non-volatile `int count = 0` field 100,000 times, with no synchronization. What can you say about the final value of count?',
+      options: [
+        'It is not guaranteed to be 200,000 — count++ is not atomic, so increments from both threads can be lost due to a race condition',
+        'It is always exactly 200,000, because int increments are atomic in Java',
+        'It always throws a ConcurrentModificationException',
+        'It is always 100,000, since only one thread\'s increments actually get counted',
+      ],
+      correct: [0],
+      variantGroup: 'interview-race-condition-counter',
+      explanation:
+        'count++ is really three separate steps under the hood — read the current value, add one, write the result back — and without synchronization, two threads can both read the same value before either writes back its incremented result, silently losing one of the increments (a classic read-modify-write race condition). Across 200,000 total increments this can happen many times, so the final value is unpredictable and typically ends up somewhat less than 200,000, varying from run to run. It\'s not that int arithmetic itself is unsafe — it\'s that the combined read-modify-write sequence on a shared variable isn\'t atomic, which is why a real fix needs `synchronized`, an `AtomicInteger`, or another proper concurrency-safe mechanism.',
+      ru: {
+        question: 'Два потока каждый выполняют `count++` над общим, не-volatile полем `int count = 0` по 100 000 раз, без синхронизации. Что можно сказать об итоговом значении count?',
+        options: [
+          'Не гарантируется, что оно будет равно 200 000 — count++ не атомарен, поэтому инкременты от обоих потоков могут теряться из-за состояния гонки',
+          'Оно всегда ровно 200 000, потому что инкременты int атомарны в Java',
+          'Всегда выбрасывается ConcurrentModificationException',
+          'Оно всегда равно 100 000, так как реально учитываются инкременты только одного потока',
+        ],
+        explanation:
+          'count++ на самом деле — это три отдельных шага под капотом: прочитать текущее значение, прибавить единицу, записать результат обратно, и без синхронизации два потока могут оба прочитать одно и то же значение до того, как хоть один из них запишет свой инкрементированный результат, тихо теряя один из инкрементов (классическое состояние гонки read-modify-write). За 200 000 суммарных инкрементов это может произойти много раз, поэтому итоговое значение непредсказуемо и обычно оказывается несколько меньше 200 000, по-разному от запуска к запуску. Дело не в том, что арифметика int сама по себе небезопасна — дело в том, что совмещённая последовательность чтение-изменение-запись над общей переменной не атомарна, поэтому настоящее исправление требует `synchronized`, `AtomicInteger` или другого подходящего потокобезопасного механизма.',
+      },
+    },
+    {
+      q: 'Four threads each execute `total += 1` on a shared, non-volatile `int total = 0` field 50,000 times, with no synchronization. What can you say about the final value of total?',
+      options: [
+        'It is not guaranteed to be 200,000 — the increment is not atomic, so updates from different threads can overwrite each other and be lost',
+        'It is always exactly 200,000, because int increments are atomic in Java',
+        'It always throws a ConcurrentModificationException',
+        'It is always 50,000, since only one thread\'s increments actually get counted',
+      ],
+      correct: [0],
+      variantGroup: 'interview-race-condition-counter',
+      explanation:
+        'The same race condition applies with any number of threads: `total += 1` reads, adds, and writes back total in three separate steps, so two threads can interleave their read and write steps and cause one thread\'s increment to be silently overwritten by another\'s stale read — losing progress. With 4 threads doing 50,000 increments each (200,000 total attempted increments), the same kind of loss can occur repeatedly, so the final value is unpredictable and generally comes in below 200,000. The fix is the same regardless of thread count: make the read-modify-write sequence atomic via `synchronized`, `AtomicInteger`, or an equivalent mechanism — adding more threads only makes an unsynchronized counter\'s result less reliable, not more.',
+      ru: {
+        question: 'Четыре потока каждый выполняют `total += 1` над общим, не-volatile полем `int total = 0` по 50 000 раз, без синхронизации. Что можно сказать об итоговом значении total?',
+        options: [
+          'Не гарантируется, что оно будет равно 200 000 — инкремент не атомарен, поэтому обновления от разных потоков могут перезаписывать друг друга и теряться',
+          'Оно всегда ровно 200 000, потому что инкременты int атомарны в Java',
+          'Всегда выбрасывается ConcurrentModificationException',
+          'Оно всегда равно 50 000, так как реально учитываются инкременты только одного потока',
+        ],
+        explanation:
+          'То же самое состояние гонки применимо при любом числе потоков: `total += 1` читает, прибавляет и записывает total обратно тремя отдельными шагами, поэтому два потока могут чередовать свои шаги чтения и записи и заставить инкремент одного потока быть тихо перезаписанным устаревшим прочитанным значением другого — теряя прогресс. При 4 потоках, делающих по 50 000 инкрементов (200 000 попыток инкремента всего), такая же потеря может происходить многократно, поэтому итоговое значение непредсказуемо и обычно оказывается меньше 200 000. Исправление то же самое независимо от числа потоков: сделать последовательность чтение-изменение-запись атомарной через `synchronized`, `AtomicInteger` или эквивалентный механизм — добавление ещё потоков делает результат несинхронизированного счётчика только менее надёжным, а не более.',
+      },
+    },
   ],
   'jvm-memory': [
     {
@@ -591,6 +735,54 @@ const raw = {
         options: ['G1 (Garbage-First) GC', 'Serial GC', 'Epsilon GC', 'Shenandoah GC'],
         explanation:
           'G1 (Garbage-First) стал сборщиком мусора по умолчанию начиная с Java 9, заменив Parallel Collector, который был по умолчанию до него. Основная идея дизайна G1 — разбить кучу на множество маленьких, равных по размеру регионов, а не на несколько больших непрерывных поколенческих областей, и приоритизировать сборку регионов, содержащих больше всего мусора, в первую очередь ("garbage first") — это позволяет ему нацеливаться на настраиваемую максимальную цель по времени паузы и в целом давать более предсказуемые, короткие паузы, чем более старые сборщики, именно поэтому он стал разумным выбором по умолчанию для большинства серверных приложений общего назначения. Serial GC (однопоточный, простой, предназначен для малых куч/однопроцессорных окружений) и Epsilon GC (по-настоящему "холостой" сборщик, вообще никогда не освобождающий память, предназначен для очень специфичных сценариев тестирования/бенчмарков) — оба нишевые, не выбираемые по умолчанию варианты, а Shenandoah — отдельный, альтернативный сборщик с низкими паузами (изначально от Red Hat), доступный, но не являющийся сборщиком по умолчанию.',
+      },
+    },
+    {
+      q: 'In `void process() { int count = 5; User u = new User(); }`, where do `count` and the object referenced by `u` live in memory?',
+      options: [
+        'count lives on the thread\'s stack (as a local variable); the User object lives on the heap, with u itself (the reference) stored on the stack',
+        'Both count and the User object live entirely on the stack',
+        'Both count and the User object live entirely on the heap',
+        'count lives on the heap; the User object lives on the stack',
+      ],
+      correct: [0],
+      variantGroup: 'interview-stack-vs-heap',
+      explanation:
+        'Local variables of primitive type, like count, are stored directly in the current method\'s stack frame and are cleaned up automatically the instant that frame is popped when the method returns. Objects created with `new` are always allocated on the heap, a shared memory area managed by the garbage collector — a reference variable like `u` is itself just a local variable, so the reference (essentially an address) lives on the stack, while the actual User object it points to lives on the heap. This is exactly why local primitives never need garbage collection but objects do — once nothing reachable from any stack still references a heap object, it becomes eligible for collection.',
+      ru: {
+        question: 'В `void process() { int count = 5; User u = new User(); }`, где в памяти хранятся count и объект, на который ссылается u?',
+        options: [
+          'count хранится в стеке потока (как локальная переменная); объект User хранится в куче, а сама u (ссылка) — в стеке',
+          'И count, и объект User целиком хранятся в стеке',
+          'И count, и объект User целиком хранятся в куче',
+          'count хранится в куче; объект User хранится в стеке',
+        ],
+        explanation:
+          'Локальные переменные примитивного типа, как count, хранятся прямо во фрейме стека текущего метода и автоматически очищаются в момент, когда этот фрейм снимается при возврате из метода. Объекты, созданные через `new`, всегда размещаются в куче — общей области памяти, которой управляет сборщик мусора; переменная-ссылка вроде `u` сама по себе — это просто локальная переменная, поэтому сама ссылка (по сути адрес) хранится в стеке, а сам объект User, на который она указывает, хранится в куче. Именно поэтому локальным примитивам никогда не нужна сборка мусора, а объектам — нужна: как только ни из одного стека объект в куче больше не достижим, он становится кандидатом на сборку.',
+      },
+    },
+    {
+      q: 'In `void register() { double price = 19.99; Order o = new Order(); }`, where do `price` and the object referenced by `o` live in memory?',
+      options: [
+        'price lives on the thread\'s stack (as a local variable); the Order object lives on the heap, with o itself (the reference) stored on the stack',
+        'Both price and the Order object live entirely on the stack',
+        'Both price and the Order object live entirely on the heap',
+        'price lives on the heap; the Order object lives on the stack',
+      ],
+      correct: [0],
+      variantGroup: 'interview-stack-vs-heap',
+      explanation:
+        'The same split applies regardless of variable names or types: price, a local primitive, is stored directly in the current stack frame and disappears automatically when that frame is popped. The Order object created with `new` is allocated on the heap, and `o` is itself just a local reference variable — the reference (an address pointing at the heap object) lives on the stack, while the Order instance it points to lives on the heap. This is a core memory-model fact interviewers expect regardless of which specific example is used to illustrate it.',
+      ru: {
+        question: 'В `void register() { double price = 19.99; Order o = new Order(); }`, где в памяти хранятся price и объект, на который ссылается o?',
+        options: [
+          'price хранится в стеке потока (как локальная переменная); объект Order хранится в куче, а сама o (ссылка) — в стеке',
+          'И price, и объект Order целиком хранятся в стеке',
+          'И price, и объект Order целиком хранятся в куче',
+          'price хранится в куче; объект Order хранится в стеке',
+        ],
+        explanation:
+          'То же самое разделение действует независимо от имён и типов переменных: price, локальный примитив, хранится прямо во фрейме текущего стека и исчезает автоматически, когда этот фрейм снимается. Объект Order, созданный через `new`, размещается в куче, а `o` сама по себе — просто локальная переменная-ссылка: сама ссылка (адрес, указывающий на объект в куче) хранится в стеке, а сам экземпляр Order, на который она указывает, хранится в куче. Это базовый факт модели памяти, который интервьюеры ожидают знать независимо от того, на каком конкретном примере он проиллюстрирован.',
       },
     },
   ],
@@ -724,6 +916,54 @@ const raw = {
         options: ['singleton', 'prototype', 'static', 'volatile'],
         explanation:
           'singleton и prototype — два основных, независимых от контейнера scope бинов Spring — singleton (по умолчанию) предоставляет один общий экземпляр на контейнер, prototype предоставляет новый экземпляр при каждом запросе бина; веб-осведомлённые application context добавляют к ним ещё scope вроде request и session. static и volatile — совершенно не связанные ключевые слова языка Java (static контролирует, принадлежит ли член классу или экземпляру; volatile — модификатор поля, связанный с конкурентностью, влияющий на видимость между потоками) — ни один из них никак не связан с настройкой scope бина Spring, и такой вопрос специально проверяет, может ли кандидат отличить настоящие концепции уровня фреймворка от похоже названных или отдалённо связанных базовых возможностей языка.',
+      },
+    },
+    {
+      q: 'Two different Spring-managed classes each have `@Autowired private UserService userService;`, and UserService is a default-scoped (singleton) bean. Are the two injected userService instances the same object?',
+      options: [
+        'Yes — singleton scope means the container creates exactly one instance of UserService per container, and injects that same instance everywhere it\'s needed',
+        'No — Spring creates a new instance for every @Autowired injection point',
+        'Only if both classes are in the same package',
+        'It depends on which one was instantiated first; the other gets a stale copy',
+      ],
+      correct: [0],
+      variantGroup: 'interview-spring-singleton-scope',
+      explanation:
+        'singleton is Spring\'s default bean scope: the container creates exactly one instance of a given bean per application context (typically at startup, or lazily on first use), and every injection point — via @Autowired, constructor injection, or otherwise — receives a reference to that exact same shared instance. This is why singleton-scoped beans should generally be stateless, or otherwise use thread-safe internal state, since many unrelated parts of the application (and potentially many concurrent request threads) all share the one instance. Prototype scope is the alternative that hands out a brand-new instance per injection/request — the behavior a common wrong guess mistakenly assumes singleton also provides.',
+      ru: {
+        question: 'У двух разных Spring-управляемых классов есть `@Autowired private UserService userService;`, и UserService — бин со scope-ом по умолчанию (singleton). Являются ли два внедрённых экземпляра userService одним и тем же объектом?',
+        options: [
+          'Да — scope singleton означает, что контейнер создаёт ровно один экземпляр UserService на контейнер и внедряет именно этот экземпляр везде, где он нужен',
+          'Нет — Spring создаёт новый экземпляр для каждой точки внедрения @Autowired',
+          'Только если оба класса находятся в одном пакете',
+          'Зависит от того, какой из них был создан первым — второй получит устаревшую копию',
+        ],
+        explanation:
+          'singleton — scope Spring-бинов по умолчанию: контейнер создаёт ровно один экземпляр данного бина на application context (обычно при старте, либо лениво при первом использовании), и каждая точка внедрения — через @Autowired, внедрение через конструктор или иначе — получает ссылку ровно на этот же общий экземпляр. Именно поэтому бины со scope-ом singleton обычно должны быть без состояния либо использовать потокобезопасное внутреннее состояние, ведь множество не связанных друг с другом частей приложения (и потенциально множество параллельных потоков запросов) разделяют один и тот же экземпляр. Scope prototype — альтернатива, выдающая совершенно новый экземпляр на каждое внедрение/запрос — именно такое поведение ошибочно приписывают и singleton при неверной догадке.',
+      },
+    },
+    {
+      q: 'Two different Spring-managed controllers each have `@Autowired private EmailService emailService;`, and EmailService is a default-scoped (singleton) bean. Are the two injected emailService instances the same object?',
+      options: [
+        'Yes — singleton scope means the container creates exactly one instance of EmailService per container, and injects that same instance everywhere it\'s needed',
+        'No — Spring creates a new instance for every @Autowired injection point',
+        'Only if both controllers are in the same package',
+        'It depends on which one was instantiated first; the other gets a stale copy',
+      ],
+      correct: [0],
+      variantGroup: 'interview-spring-singleton-scope',
+      explanation:
+        'The same singleton contract applies regardless of which bean or which classes are involved: Spring\'s default scope guarantees exactly one shared EmailService instance per application context, handed out identically to both controllers via @Autowired. Package membership plays no role in this at all — bean scope is a container-level configuration, entirely unrelated to Java package structure. As with any singleton bean, this shared-instance behavior is exactly why any mutable state inside EmailService needs to be handled carefully (or avoided) to stay safe under concurrent use from multiple controllers/threads.',
+      ru: {
+        question: 'У двух разных Spring-управляемых контроллеров есть `@Autowired private EmailService emailService;`, и EmailService — бин со scope-ом по умолчанию (singleton). Являются ли два внедрённых экземпляра emailService одним и тем же объектом?',
+        options: [
+          'Да — scope singleton означает, что контейнер создаёт ровно один экземпляр EmailService на контейнер и внедряет именно этот экземпляр везде, где он нужен',
+          'Нет — Spring создаёт новый экземпляр для каждой точки внедрения @Autowired',
+          'Только если оба контроллера находятся в одном пакете',
+          'Зависит от того, какой из них был создан первым — второй получит устаревшую копию',
+        ],
+        explanation:
+          'Тот же контракт singleton действует независимо от того, какой именно бин и какие классы задействованы: scope по умолчанию в Spring гарантирует ровно один общий экземпляр EmailService на application context, выдаваемый одинаково обоим контроллерам через @Autowired. Принадлежность к пакету здесь вообще не играет роли — scope бина это настройка на уровне контейнера, никак не связанная со структурой пакетов Java. Как и с любым singleton-бином, такое поведение общего экземпляра — именно причина, почему любое изменяемое состояние внутри EmailService нужно аккуратно обрабатывать (или избегать его), чтобы оставаться безопасным при параллельном использовании из нескольких контроллеров/потоков.',
       },
     },
   ],
@@ -866,6 +1106,54 @@ const raw = {
           'SQL-запрос с группировкой концептуально выполняется поэтапно: WHERE сначала фильтрует отдельные сырые строки, ещё до того, как вообще произойдёт группировка или агрегация, поэтому он не может ссылаться на результат агрегатной функции вроде COUNT(*) или AVG(salary), поскольку они на этом этапе ещё не вычислены. GROUP BY затем разбивает оставшиеся строки на корзины, агрегатные функции вычисляют значения по каждой корзине, и только после этого HAVING получает шанс отфильтровать — но HAVING фильтрует целые *группы* по условиям, которые могут свободно ссылаться на эти агрегатные результаты, например `HAVING COUNT(*) > 5`, чтобы оставить только группы с более чем пятью строками. Действительно полезная мнемоника: WHERE работает с отдельными строками до агрегации, HAVING работает с агрегированными группами после — попытка поместить агрегатное условие в WHERE — классическая ошибка SQL, дающая ровно то сообщение об ошибке, что агрегатные функции там не разрешены.',
       },
     },
+    {
+      q: 'Table orders has 10 rows, 2 of which have a NULL customer_id. Running `SELECT * FROM orders o INNER JOIN customers c ON o.customer_id = c.id`, how many of the original 10 order rows can appear in the result, at most?',
+      options: [
+        '8 — INNER JOIN only returns rows where the join condition matches, and NULL never equals anything, so the 2 orders with NULL customer_id are excluded',
+        '10 — INNER JOIN always preserves every row from the left table',
+        '0 — the query fails because customer_id is NULL for some rows',
+        '12 — NULLs match every row in customers, duplicating them',
+      ],
+      correct: [0],
+      variantGroup: 'interview-inner-join-null-fk',
+      explanation:
+        'INNER JOIN only includes row pairs where the join condition evaluates to true, and in SQL any comparison involving NULL (including `NULL = anything`) evaluates to unknown, never true. So the 2 orders whose customer_id is NULL can never satisfy `o.customer_id = c.id` against any row in customers, and they\'re silently dropped from the result — leaving at most 8 of the original 10 order rows represented (fewer still if any of the remaining 8 don\'t match a valid customer id either). A LEFT JOIN, by contrast, would keep all 10 orders regardless, filling in NULLs for the customer columns where there\'s no match — that INNER-vs-LEFT distinction around unmatched or NULL foreign keys is one of the most common SQL interview trip-ups.',
+      ru: {
+        question: 'Таблица orders содержит 10 строк, у 2 из них customer_id равен NULL. При выполнении `SELECT * FROM orders o INNER JOIN customers c ON o.customer_id = c.id`, сколько максимум из исходных 10 строк orders может попасть в результат?',
+        options: [
+          '8 — INNER JOIN возвращает только строки, где условие соединения выполняется, а NULL никогда ничему не равен, поэтому 2 заказа с NULL customer_id исключаются',
+          '10 — INNER JOIN всегда сохраняет каждую строку из левой таблицы',
+          '0 — запрос завершится ошибкой, потому что customer_id равен NULL у некоторых строк',
+          '12 — NULL совпадает с каждой строкой в customers, дублируя их',
+        ],
+        explanation:
+          'INNER JOIN включает только пары строк, для которых условие соединения истинно, а в SQL любое сравнение с участием NULL (в том числе `NULL = что угодно`) даёт unknown, никогда не true. Поэтому 2 заказа с NULL в customer_id никогда не смогут удовлетворить `o.customer_id = c.id` ни для одной строки customers, и они тихо выпадают из результата — оставляя максимум 8 из исходных 10 строк orders (ещё меньше, если у кого-то из оставшихся 8 тоже нет совпадающего id клиента). LEFT JOIN, напротив, сохранил бы все 10 заказов в любом случае, подставив NULL в столбцы клиента там, где совпадения нет — это различие INNER и LEFT в отношении несовпадающих или NULL внешних ключей — одна из самых частых ловушек на собеседованиях по SQL.',
+      },
+    },
+    {
+      q: 'Table employees has 20 rows, 3 of which have a NULL department_id. Running `SELECT * FROM employees e INNER JOIN departments d ON e.department_id = d.id`, how many of the original 20 employee rows can appear in the result, at most?',
+      options: [
+        '17 — INNER JOIN only returns rows where the join condition matches, and NULL never equals anything, so the 3 employees with NULL department_id are excluded',
+        '20 — INNER JOIN always preserves every row from the left table',
+        '0 — the query fails because department_id is NULL for some rows',
+        '23 — NULLs match every row in departments, duplicating them',
+      ],
+      correct: [0],
+      variantGroup: 'interview-inner-join-null-fk',
+      explanation:
+        'The same rule applies regardless of table/column names or row counts: `NULL = anything` is never true in SQL, so the 3 employees whose department_id is NULL can never match any row in departments via the join condition and are dropped from an INNER JOIN\'s result — leaving at most 17 of the original 20 rows represented. Swapping in a LEFT JOIN would keep all 20 employees, with NULLs filled in for the department columns of the 3 unmatched rows — the underlying lesson (INNER JOIN silently discards unmatched/NULL-foreign-key rows; LEFT JOIN preserves them) is identical to the orders/customers version of this question, just with different table names and numbers.',
+      ru: {
+        question: 'Таблица employees содержит 20 строк, у 3 из них department_id равен NULL. При выполнении `SELECT * FROM employees e INNER JOIN departments d ON e.department_id = d.id`, сколько максимум из исходных 20 строк employees может попасть в результат?',
+        options: [
+          '17 — INNER JOIN возвращает только строки, где условие соединения выполняется, а NULL никогда ничему не равен, поэтому 3 сотрудника с NULL department_id исключаются',
+          '20 — INNER JOIN всегда сохраняет каждую строку из левой таблицы',
+          '0 — запрос завершится ошибкой, потому что department_id равен NULL у некоторых строк',
+          '23 — NULL совпадает с каждой строкой в departments, дублируя их',
+        ],
+        explanation:
+          'То же самое правило действует независимо от названий таблиц/столбцов или количества строк: `NULL = что угодно` никогда не равно true в SQL, поэтому 3 сотрудника с NULL в department_id никогда не смогут совпасть ни с одной строкой departments по условию соединения и выпадают из результата INNER JOIN — оставляя максимум 17 из исходных 20 строк. Замена на LEFT JOIN сохранила бы всех 20 сотрудников, подставив NULL в столбцы отдела для 3 несовпавших строк — базовый урок (INNER JOIN тихо отбрасывает несовпадающие/NULL строки внешнего ключа; LEFT JOIN их сохраняет) идентичен версии этого вопроса про orders/customers, просто с другими названиями таблиц и числами.',
+      },
+    },
   ],
   'git-vcs': [
     {
@@ -1004,6 +1292,54 @@ const raw = {
         ],
         explanation:
           'cherry-pick берёт ровно один конкретный, существующий коммит (определённый по его хешу) откуда угодно из истории репозитория — часто с совершенно другой ветки — и создаёт совершенно новый коммит в вашей текущей ветке, воспроизводящий то же самое изменение (тот же diff), не принося с собой никакие другие коммиты, окружавшие его в исходной ветке. Частый реальный сценарий: критичный багфикс был закоммичен в feature-ветку, но его нужно немедленно применить и к main/release ветке, не сливая всю ещё незавершённую feature — cherry-pick именно этого коммита с фиксом в main достигает ровно этого, чисто. Это выборочная, однокоммитная операция, совершенно отличная от слияния целой ветки, и она никак не трогает и не удаляет исходный коммит нигде; закерри-пиченный коммит — по-настоящему новый, отдельный коммит со своим собственным хешем.',
+      },
+    },
+    {
+      q: 'You run `git merge feature` while on main, where feature has 3 commits not on main. What does this typically produce in the commit history?',
+      options: [
+        'A new merge commit on main with two parents, preserving feature\'s 3 original commits and the branching structure',
+        'feature\'s 3 commits are replayed on top of main with new commit hashes, producing a linear history',
+        'main and feature are combined into a single squashed commit',
+        'Nothing changes until you also run git push',
+      ],
+      correct: [0],
+      variantGroup: 'interview-merge-vs-rebase-history',
+      explanation:
+        'git merge, in its default non-fast-forward form when branches have diverged, creates a new commit with two parent commits — the tip of main and the tip of feature — explicitly recording where the two histories converge, while feature\'s original 3 commits keep their original hashes and remain visible as a distinct branching path in the history graph. git rebase, by contrast, would take those same 3 commits and reapply them one by one on top of main\'s current tip, each getting a brand-new hash and producing a straight, linear history with no merge commit and no visible branch structure — that contrast (preserved branch + merge commit vs. replayed linear history) is the core practical difference candidates are expected to explain.',
+      ru: {
+        question: 'Вы выполняете `git merge feature`, находясь на main, где у feature есть 3 коммита, которых нет в main. Что это обычно даёт в истории коммитов?',
+        options: [
+          'Новый merge-коммит в main с двумя родителями, сохраняющий 3 исходных коммита feature и структуру ветвления',
+          '3 коммита feature переносятся поверх main с новыми хешами коммитов, давая линейную историю',
+          'main и feature объединяются в один сквошенный коммит',
+          'Ничего не меняется, пока вы дополнительно не выполните git push',
+        ],
+        explanation:
+          'git merge в своей форме по умолчанию без fast-forward (когда ветки разошлись) создаёт новый коммит с двумя родительскими коммитами — вершиной main и вершиной feature — явно фиксируя, где сходятся эти две истории, при этом 3 исходных коммита feature сохраняют свои исходные хеши и остаются видимыми как отдельный путь ветвления в графе истории. git rebase, напротив, взял бы те же самые 3 коммита и заново применил их один за другим поверх текущей вершины main, каждый получив совершенно новый хеш, давая прямую линейную историю без merge-коммита и без видимой структуры ветвления — именно этот контраст (сохранённая ветка + merge-коммит против перенесённой линейной истории) — ключевое практическое отличие, которое ожидается от кандидата.',
+      },
+    },
+    {
+      q: 'You run `git rebase main` while on feature (which has 3 commits not on main), then fast-forward-merge feature into main. What does this typically produce in the commit history?',
+      options: [
+        'feature\'s 3 commits are replayed on top of main with new commit hashes, producing a straight, linear history with no merge commit',
+        'A new merge commit on main with two parents, preserving feature\'s 3 original commit hashes and the branching structure',
+        'main and feature are combined into a single squashed commit',
+        'Nothing changes until you also run git push',
+      ],
+      correct: [0],
+      variantGroup: 'interview-merge-vs-rebase-history',
+      explanation:
+        'git rebase takes feature\'s 3 commits and reapplies them one at a time on top of main\'s current tip, generating a brand-new hash for each replayed commit — the original 3 commits from before the rebase are effectively abandoned once nothing else references them. Because the result sits directly on top of main with no divergence left, merging feature into main afterward can fast-forward (just moving main\'s pointer forward) rather than creating a merge commit — producing a straight, linear history with no branching structure visible at all, the opposite of what a regular `git merge` (without a prior rebase) would have produced.',
+      ru: {
+        question: 'Вы выполняете `git rebase main`, находясь на feature (у которой 3 коммита, которых нет в main), а затем сливаете feature в main через fast-forward. Что это обычно даёт в истории коммитов?',
+        options: [
+          '3 коммита feature переносятся поверх main с новыми хешами коммитов, давая прямую линейную историю без merge-коммита',
+          'Новый merge-коммит в main с двумя родителями, сохраняющий исходные хеши 3 коммитов feature и структуру ветвления',
+          'main и feature объединяются в один сквошенный коммит',
+          'Ничего не меняется, пока вы дополнительно не выполните git push',
+        ],
+        explanation:
+          'git rebase берёт 3 коммита feature и заново применяет их по одному поверх текущей вершины main, генерируя совершенно новый хеш для каждого перенесённого коммита — исходные 3 коммита до rebase фактически становятся заброшенными, как только на них больше ничего не ссылается. Поскольку результат оказывается прямо поверх main без какого-либо расхождения, последующее слияние feature в main может пройти через fast-forward (просто сдвинув указатель main вперёд), а не создать merge-коммит — давая прямую линейную историю совсем без видимой структуры ветвления, противоположность тому, что дал бы обычный `git merge` (без предварительного rebase).',
       },
     },
   ],
@@ -1146,6 +1482,54 @@ const raw = {
           'Горизонтальное масштабирование ("scaling out") увеличивает ёмкость системы за счёт добавления большего числа машин или инстансов, выполняющих одно и то же приложение, с балансировщиком нагрузки (или похожим механизмом), распределяющим входящий трафик между всеми ними — этот подход также обычно повышает доступность, поскольку отказ любого отдельного инстанса не обязательно "роняет" всю систему, в отличие от одного мощного сервера. Вертикальное масштабирование ("scaling up") — альтернативный подход, добавляющий больше ресурсов (CPU, RAM, более быстрые диски) одной существующей машине, что операционно проще, но имеет жёсткий физический/ценовой потолок и создаёт единую точку отказа. Это понятие широко применимо к безсостоятельным серверам приложений, а не только к базам данных (хотя горизонтальное масштабирование именно базы данных вносит собственные значительные сложности вокруг согласованности данных и партиционирования — естественный, хороший уточняющий момент, который стоит поднять, если это возникнет на собеседовании в духе системного дизайна).',
       },
     },
+    {
+      q: 'This double-checked locking Singleton is missing something that can let another thread see a partially-constructed ConfigManager:\n\nclass ConfigManager {\n  private static ConfigManager instance;\n  public static ConfigManager getInstance() {\n    if (instance == null) {\n      synchronized (ConfigManager.class) {\n        if (instance == null) {\n          instance = new ConfigManager();\n        }\n      }\n    }\n    return instance;\n  }\n}\n\nWhat\'s missing?',
+      options: [
+        'The `instance` field should be declared `volatile`, to prevent instruction reordering from publishing a reference before the constructor has fully finished',
+        'The outer `if (instance == null)` check is redundant and should be removed',
+        'getInstance() should not be static',
+        'The synchronized block should wrap the entire method instead of just part of it',
+      ],
+      correct: [0],
+      variantGroup: 'interview-dcl-singleton-volatile',
+      explanation:
+        'Object construction (`new ConfigManager()`) is not guaranteed to behave as a single atomic step from the JVM\'s perspective — without `volatile`, the compiler or CPU is allowed to reorder the steps of "allocate memory," "run the constructor," and "assign the reference to `instance`". That means another thread reading `instance` outside the synchronized block (the outer null-check, which exists purely as a fast-path optimization to skip locking once the instance is set) could observe a non-null reference to an object whose constructor hasn\'t actually finished running — a partially-initialized ConfigManager. Declaring `instance` as `volatile` establishes a happens-before relationship that forbids this reordering, guaranteeing that once any thread sees a non-null `instance`, its constructor has fully completed — which is exactly why double-checked locking is considered a subtle, easy-to-get-wrong pattern that tests memory visibility understanding, not just mutual exclusion.',
+      ru: {
+        question: 'В этом Singleton с двойной проверкой блокировки чего-то не хватает, из-за чего другой поток может увидеть частично сконструированный ConfigManager:\n\nclass ConfigManager {\n  private static ConfigManager instance;\n  public static ConfigManager getInstance() {\n    if (instance == null) {\n      synchronized (ConfigManager.class) {\n        if (instance == null) {\n          instance = new ConfigManager();\n        }\n      }\n    }\n    return instance;\n  }\n}\n\nЧего не хватает?',
+        options: [
+          'Поле `instance` должно быть объявлено `volatile`, чтобы предотвратить переупорядочивание инструкций, публикующее ссылку до полного завершения конструктора',
+          'Внешняя проверка `if (instance == null)` избыточна и её нужно убрать',
+          'getInstance() не должен быть static',
+          'Блок synchronized должен оборачивать весь метод, а не только его часть',
+        ],
+        explanation:
+          'Конструирование объекта (`new ConfigManager()`) не гарантированно ведёт себя как один атомарный шаг с точки зрения JVM — без `volatile` компилятору или процессору разрешено переупорядочить шаги "выделить память", "выполнить конструктор" и "присвоить ссылку полю `instance`". Это значит, что другой поток, читающий `instance` вне synchronized-блока (внешняя проверка на null, существующая исключительно как быстрая оптимизация, пропускающая блокировку после установки instance), может увидеть не-null ссылку на объект, конструктор которого на самом деле ещё не завершился — частично инициализированный ConfigManager. Объявление `instance` как `volatile` устанавливает отношение happens-before, запрещающее это переупорядочивание, гарантируя, что как только любой поток увидел не-null `instance`, его конструктор уже полностью завершился — именно поэтому двойная проверка блокировки считается тонким, легко ошибочным паттерном, проверяющим понимание видимости памяти, а не только взаимного исключения.',
+      },
+    },
+    {
+      q: 'This double-checked locking Singleton is missing something that can let another thread see a partially-constructed Logger:\n\nclass Logger {\n  private static Logger sharedLogger;\n  public static Logger getLogger() {\n    if (sharedLogger == null) {\n      synchronized (Logger.class) {\n        if (sharedLogger == null) {\n          sharedLogger = new Logger();\n        }\n      }\n    }\n    return sharedLogger;\n  }\n}\n\nWhat\'s missing?',
+      options: [
+        'The `sharedLogger` field should be declared `volatile`, to prevent instruction reordering from publishing a reference before the constructor has fully finished',
+        'The outer `if (sharedLogger == null)` check is redundant and should be removed',
+        'getLogger() should not be static',
+        'The synchronized block should wrap the entire method instead of just part of it',
+      ],
+      correct: [0],
+      variantGroup: 'interview-dcl-singleton-volatile',
+      explanation:
+        'The exact same reordering hazard applies regardless of the class or field name: without `volatile` on `sharedLogger`, the JVM is free to reorder "allocate the Logger," "run its constructor," and "publish the reference" — so a thread outside the synchronized block could read a non-null `sharedLogger` that points at an object whose constructor hasn\'t finished executing yet, handing out a broken, half-built Logger. Marking `sharedLogger` as `volatile` forbids that reordering and guarantees full construction is visible before any thread can observe a non-null reference — the fix, and the underlying reasoning, is identical to the ConfigManager version of this scenario, just with different names.',
+      ru: {
+        question: 'В этом Singleton с двойной проверкой блокировки чего-то не хватает, из-за чего другой поток может увидеть частично сконструированный Logger:\n\nclass Logger {\n  private static Logger sharedLogger;\n  public static Logger getLogger() {\n    if (sharedLogger == null) {\n      synchronized (Logger.class) {\n        if (sharedLogger == null) {\n          sharedLogger = new Logger();\n        }\n      }\n    }\n    return sharedLogger;\n  }\n}\n\nЧего не хватает?',
+        options: [
+          'Поле `sharedLogger` должно быть объявлено `volatile`, чтобы предотвратить переупорядочивание инструкций, публикующее ссылку до полного завершения конструктора',
+          'Внешняя проверка `if (sharedLogger == null)` избыточна и её нужно убрать',
+          'getLogger() не должен быть static',
+          'Блок synchronized должен оборачивать весь метод, а не только его часть',
+        ],
+        explanation:
+          'Точно такая же опасность переупорядочивания действует независимо от названия класса или поля: без `volatile` у `sharedLogger` JVM вправе переупорядочить "выделить память под Logger", "выполнить его конструктор" и "опубликовать ссылку" — поэтому поток вне synchronized-блока может прочитать не-null `sharedLogger`, указывающий на объект, конструктор которого ещё не завершил выполнение, получив сломанный, недостроенный Logger. Пометка `sharedLogger` как `volatile` запрещает это переупорядочивание и гарантирует, что полное конструирование видно до того, как любой поток сможет увидеть не-null ссылку — исправление и лежащее в основе рассуждение идентичны версии этого сценария с ConfigManager, просто с другими названиями.',
+      },
+    },
   ],
 }
 
@@ -1159,5 +1543,6 @@ export const interviewQuestions = Object.entries(raw).flatMap(([topic, items]) =
     correct: item.correct,
     explanation: item.explanation,
     ru: item.ru,
+    variantGroup: item.variantGroup,
   }))
 )

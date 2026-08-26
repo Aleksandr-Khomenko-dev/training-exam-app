@@ -91,6 +91,8 @@ export const strings = {
     switchToDark: 'Switch to dark theme',
     switchToLight: 'Switch to light theme',
     menu: 'Menu',
+    smallPoolHint: (n) =>
+      `Only ${n} question${n === 1 ? '' : 's'} available for this selection — you'll see all of them this round. Pick more topics for more variety.`,
   },
   ru: {
     appName: 'CertBrew',
@@ -184,5 +186,7 @@ export const strings = {
     switchToDark: 'Включить тёмную тему',
     switchToLight: 'Включить светлую тему',
     menu: 'Меню',
+    smallPoolHint: (n) =>
+      `В этой выборке всего ${n} вопрос${n === 1 ? '' : n < 5 ? 'а' : 'ов'} — вы увидите все за этот раз. Выберите больше тем для разнообразия.`,
   },
 }

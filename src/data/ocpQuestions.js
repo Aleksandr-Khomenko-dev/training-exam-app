@@ -1418,5 +1418,6 @@ export const ocpQuestions = Object.entries(raw).flatMap(([topic, items]) =>
     correct: item.correct,
     explanation: item.explanation,
     ru: item.ru,
+    variantGroup: item.variantGroup,
   }))
 )
