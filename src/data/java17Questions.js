@@ -236,6 +236,34 @@ const raw = {
           'Помеченный `continue outer` пропускает остаток текущей итерации внешнего цикла и сразу переходит к проверке инкремента/условия внешнего цикла, а не просто перезапускает внутренний цикл, как это сделал бы непомеченный continue. Для каждого i (0, 1, 2) j начинается с 0 и печатает i+"0" (давая "00", "10", "20"), затем j становится 1, срабатывает `continue outer`, и происходит немедленный переход к следующему значению i, так и не дав j достичь 2 или каким-либо дальнейшим печатям внутреннего цикла произойти. Соединив три напечатанные пары, получаем "00" + "10" + "20" = "001020".',
       },
     },
+    {
+      q: 'What is printed?\n\nint x = 5;\ndouble result = true ? x : 3.0;\nSystem.out.println(result);',
+      options: ['5.0', '5', '3.0', 'Compilation error'],
+      correct: [0],
+      variantGroup: 'j17-ternary-numeric-promotion',
+      explanation:
+        'When the two branches of a ternary (conditional) expression have different numeric types, Java applies binary numeric promotion to unify them to a single common type for the *entire expression*, regardless of which branch actually gets chosen at runtime. Here one branch is int (x) and the other is double (3.0), so both are promoted to double, making the whole expression\'s static type double. Since the condition is true, x (5) is selected and widened to 5.0 — not because of any special truthiness rule, but simply because the chosen int value is converted to match the expression\'s already-unified double type.',
+      ru: {
+        question: 'Что будет напечатано?\n\nint x = 5;\ndouble result = true ? x : 3.0;\nSystem.out.println(result);',
+        options: ['5.0', '5', '3.0', 'Ошибка компиляции'],
+        explanation:
+          'Когда две ветки тернарного (условного) выражения имеют разные числовые типы, Java применяет бинарное числовое приведение, чтобы объединить их в один общий тип для *всего выражения*, независимо от того, какая ветка реально выбирается во время выполнения. Здесь одна ветка — int (x), другая — double (3.0), поэтому обе приводятся к double, делая статический тип всего выражения double. Так как условие истинно, выбирается x (5) и расширяется до 5.0 — не из-за какого-то особого правила истинности, а просто потому что выбранное значение int преобразуется под уже объединённый тип double всего выражения.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nint y = 10;\ndouble result = false ? 2.5 : y;\nSystem.out.println(result);',
+      options: ['10.0', '10', '2.5', 'Compilation error'],
+      correct: [0],
+      variantGroup: 'j17-ternary-numeric-promotion',
+      explanation:
+        'The same numeric-promotion rule applies regardless of which branch is chosen or which side holds the int: with one branch double (2.5) and the other int (y), the whole ternary expression\'s type is unified to double. The condition is false, so y (10) is selected — and because the expression\'s type is already double, that int value is widened to 10.0 in the result, exactly mirroring the earlier example with the branches swapped.',
+      ru: {
+        question: 'Что будет напечатано?\n\nint y = 10;\ndouble result = false ? 2.5 : y;\nSystem.out.println(result);',
+        options: ['10.0', '10', '2.5', 'Ошибка компиляции'],
+        explanation:
+          'То же самое правило числового приведения действует независимо от того, какая ветка выбрана или на какой стороне стоит int: с одной веткой double (2.5) и другой int (y), тип всего тернарного выражения объединяется до double. Условие ложно, поэтому выбирается y (10) — а поскольку тип выражения уже double, это значение int расширяется до 10.0 в результате, в точности зеркаля предыдущий пример с поменянными местами ветками.',
+      },
+    },
   ],
 
   'java17-oop': [
@@ -299,6 +327,34 @@ const raw = {
         options: ['Hello Sam!', 'Ошибка компиляции — интерфейсы не могут иметь private-методы', 'Hello, Sam.', 'null Sam!'],
         explanation:
           'Начиная с Java 9 интерфейсы могут объявлять private-методы, существующие исключительно для того, чтобы делить код между собственными default-методами интерфейса (или другими private-методами) — их нельзя вызвать снаружи интерфейса, и они не наследуются и не переопределяются реализующими классами. Здесь base() — приватный вспомогательный метод, переиспользуемый и formal(), и casual(), избегая дублирования строки "Hello" в двух местах. EnglishGreeter наследует оба default-метода, ничего не переопределяя, поэтому вызов .casual("Sam") выполняет реализацию по умолчанию из Greeter, которая вызывает приватный base() (возвращающий "Hello") и объединяет его в "Hello Sam!".',
+      },
+    },
+    {
+      q: 'What is printed?\n\ninterface Speaker { String speak(); }\n\nenum Animal implements Speaker {\n  DOG { public String speak() { return "Woof"; } },\n  CAT { public String speak() { return "Meow"; } };\n}\n\nSystem.out.println(Animal.DOG.speak());',
+      options: ['Woof', 'Meow', 'Compilation error', 'null'],
+      correct: [0],
+      variantGroup: 'j17-enum-implements-interface-body',
+      explanation:
+        'An enum can implement an interface, and each constant can supply its own constant-specific class body overriding a method — effectively giving each enum value its own tiny subclass with a distinct implementation. DOG\'s body overrides speak() to return "Woof", and CAT\'s overrides it to return "Meow"; calling Animal.DOG.speak() dispatches to DOG\'s own override, printing "Woof". This pattern is a clean way to give each enum constant genuinely different behavior without external if/switch logic scattered elsewhere in the code.',
+      ru: {
+        question: 'Что будет напечатано?\n\ninterface Speaker { String speak(); }\n\nenum Animal implements Speaker {\n  DOG { public String speak() { return "Woof"; } },\n  CAT { public String speak() { return "Meow"; } };\n}\n\nSystem.out.println(Animal.DOG.speak());',
+        options: ['Woof', 'Meow', 'Ошибка компиляции', 'null'],
+        explanation:
+          'enum может реализовывать интерфейс, и каждая константа может предоставить собственное тело класса, специфичное для константы, переопределяющее метод — фактически давая каждому значению enum свой крошечный подкласс с отдельной реализацией. Тело DOG переопределяет speak(), возвращая "Woof", а тело CAT переопределяет его, возвращая "Meow"; вызов Animal.DOG.speak() диспетчеризуется к собственному переопределению DOG, печатая "Woof". Этот паттерн — чистый способ дать каждой константе enum по-настоящему разное поведение без разбросанной по коду внешней логики if/switch.',
+      },
+    },
+    {
+      q: 'What is printed?\n\ninterface Operation { int apply(int a, int b); }\n\nenum MathOp implements Operation {\n  ADD { public int apply(int a, int b) { return a + b; } },\n  MULTIPLY { public int apply(int a, int b) { return a * b; } };\n}\n\nSystem.out.println(MathOp.MULTIPLY.apply(3, 4));',
+      options: ['12', '7', '0', 'Compilation error'],
+      correct: [0],
+      variantGroup: 'j17-enum-implements-interface-body',
+      explanation:
+        'The same constant-specific class body mechanism applies with different constant/method names: MULTIPLY has its own override of apply() computing a * b, entirely separate from ADD\'s override computing a + b. Calling MathOp.MULTIPLY.apply(3, 4) dispatches to MULTIPLY\'s own body, computing 3 * 4 = 12. Each enum constant with a body like this is effectively an anonymous subclass of the enum, which is why they can each override shared interface/abstract methods independently.',
+      ru: {
+        question: 'Что будет напечатано?\n\ninterface Operation { int apply(int a, int b); }\n\nenum MathOp implements Operation {\n  ADD { public int apply(int a, int b) { return a + b; } },\n  MULTIPLY { public int apply(int a, int b) { return a * b; } };\n}\n\nSystem.out.println(MathOp.MULTIPLY.apply(3, 4));',
+        options: ['12', '7', '0', 'Ошибка компиляции'],
+        explanation:
+          'Тот же самый механизм тела класса, специфичного для константы, действует с другими названиями констант/методов: у MULTIPLY своё собственное переопределение apply(), вычисляющее a * b, полностью отдельное от переопределения ADD, вычисляющего a + b. Вызов MathOp.MULTIPLY.apply(3, 4) диспетчеризуется к собственному телу MULTIPLY, вычисляя 3 * 4 = 12. Каждая константа enum с таким телом фактически является анонимным подклассом enum, поэтому каждая может независимо переопределять общие интерфейсные/абстрактные методы.',
       },
     },
   ],
@@ -374,6 +430,34 @@ const raw = {
         options: ['body failed\n1', 'close failed\n1', 'body failed\n0', 'close failed\n0'],
         explanation:
           'Когда и тело блока try, и автоматический close() try-with-resources оба бросают исключение, наружу реально распространяется исключение из тела ("побеждает" оно), а исключение, брошенное close(), присоединяется к нему как подавленное (suppressed), а не заменяет его и не теряется — его можно получить через getSuppressed(). Здесь тело сначала бросает "body failed", и во время разворачивания close() бросает "close failed"; e в блоке catch — это исключение из тела, поэтому e.getMessage() равно "body failed", а e.getSuppressed() содержит ровно исключение из close(), давая длину 1. Этот механизм подавленных исключений (появившийся вместе с try-with-resources) существует именно для того, чтобы сбой при очистке ресурсов никогда молча не маскировал исходный, более важный сбой, который и вызвал эту очистку.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nstatic int test() {\n  try {\n    return 1;\n  } finally {\n    return 2;\n  }\n}\n\nSystem.out.println(test());',
+      options: ['2', '1', 'Compilation error', 'It prints nothing'],
+      correct: [0],
+      variantGroup: 'j17-finally-return-overrides',
+      explanation:
+        'A return statement inside a finally block unconditionally overrides any return (or even a thrown exception) that was already pending from the try or catch block — the finally block always gets the last word on how the method actually exits. Here, `return 1` in the try block schedules 1 as the return value, but before the method actually returns, finally executes and its own `return 2` discards the pending return entirely, making 2 the method\'s actual result. This is exactly why using return (or throw, or continue/break) inside finally is considered a serious anti-pattern — it can silently swallow the try block\'s real outcome, including any exception that was in the middle of propagating.',
+      ru: {
+        question: 'Что будет напечатано?\n\nstatic int test() {\n  try {\n    return 1;\n  } finally {\n    return 2;\n  }\n}\n\nSystem.out.println(test());',
+        options: ['2', '1', 'Ошибка компиляции', 'Ничего не печатается'],
+        explanation:
+          'Оператор return внутри блока finally безусловно перекрывает любой return (или даже брошенное исключение), уже ожидавший из блока try или catch — за finally всегда остаётся последнее слово в том, как метод реально завершается. Здесь `return 1` в блоке try планирует 1 как возвращаемое значение, но прежде чем метод реально вернёт управление, выполняется finally, и его собственный `return 2` полностью отбрасывает ожидавший return, делая 2 реальным результатом метода. Именно поэтому использование return (или throw, или continue/break) внутри finally считается серьёзным антипаттерном — оно может тихо поглотить реальный исход блока try, включая любое исключение, находившееся в процессе распространения.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nstatic int compute() {\n  try {\n    return 10;\n  } finally {\n    return 20;\n  }\n}\n\nSystem.out.println(compute());',
+      options: ['20', '10', 'Compilation error', 'It prints nothing'],
+      correct: [0],
+      variantGroup: 'j17-finally-return-overrides',
+      explanation:
+        'The same override rule applies regardless of the specific values involved: finally\'s `return 20` unconditionally replaces the try block\'s pending `return 10`, since finally always executes last and its own control-flow statements take precedence over whatever the try block was about to do. The method\'s actual result is 20, not 10 — the try block\'s return value never actually escapes the method in this scenario.',
+      ru: {
+        question: 'Что будет напечатано?\n\nstatic int compute() {\n  try {\n    return 10;\n  } finally {\n    return 20;\n  }\n}\n\nSystem.out.println(compute());',
+        options: ['20', '10', 'Ошибка компиляции', 'Ничего не печатается'],
+        explanation:
+          'То же самое правило перекрытия действует независимо от конкретных задействованных значений: `return 20` в finally безусловно заменяет ожидавший `return 10` блока try, поскольку finally всегда выполняется последним, и его собственные операторы управления потоком имеют приоритет над тем, что собирался сделать блок try. Реальный результат метода — 20, а не 10 — возвращаемое значение блока try в этом сценарии на самом деле никогда не покидает метод.',
       },
     },
   ],
@@ -461,6 +545,54 @@ const raw = {
           '`? extends Number` означает "некий конкретный, но неизвестный подтип Number" — компилятор не может знать, является ли этот неизвестный подтип Integer, Double или чем-то ещё, поэтому он запрещает добавлять что-либо (кроме буквального null) через эту ссылку, так как не может подтвердить, что какое-либо конкретное значение будет совместимо по типу с реальным типом во время выполнения. Чтение же всегда безопасно: каким бы ни был неизвестный подтип на самом деле, гарантированно это какой-то Number, поэтому `Number n = nums.get(0);` компилируется нормально. Это правило "extends = безопасно читать, небезопасно писать" (неформально "принцип Get and Put" / PECS: Producer Extends, Consumer Super) — активно проверяемая концепция дженериков.',
       },
     },
+    {
+      q: 'What happens at runtime?\n\nMap<String, Integer> m = Map.of("a", 1, "a", 2);',
+      options: [
+        'Throws IllegalArgumentException — Map.of() does not allow duplicate keys',
+        'It runs fine; m ends up with "a" mapped to 2 (the last value wins)',
+        'It runs fine; m ends up with "a" mapped to 1 (the first value wins)',
+        'Compilation error — duplicate keys cannot be detected at compile time',
+      ],
+      correct: [0],
+      explanation:
+        'Map.of() explicitly forbids duplicate keys among its arguments — unlike, say, repeatedly calling put() on a HashMap (where a later put simply overwrites an earlier one), Map.of() treats a duplicate key as a programming error and throws IllegalArgumentException at the moment the map is constructed, rather than silently picking a "winner" between the conflicting values. This fail-fast behavior is consistent with the other List.of()/Set.of() factory methods\' general philosophy of catching misuse early rather than papering over it.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nMap<String, Integer> m = Map.of("a", 1, "a", 2);',
+        options: [
+          'Выбрасывает IllegalArgumentException — Map.of() не допускает дублирующихся ключей',
+          'Выполнится нормально; m получит "a", сопоставленный с 2 (побеждает последнее значение)',
+          'Выполнится нормально; m получит "a", сопоставленный с 1 (побеждает первое значение)',
+          'Ошибка компиляции — дублирующиеся ключи нельзя обнаружить на этапе компиляции',
+        ],
+        explanation:
+          'Map.of() явно запрещает дублирующиеся ключи среди своих аргументов — в отличие, скажем, от повторного вызова put() у HashMap (где более поздний put просто перезаписывает более ранний), Map.of() считает дублирующийся ключ программной ошибкой и выбрасывает IllegalArgumentException в момент создания карты, а не молча выбирает "победителя" между конфликтующими значениями. Это поведение fail-fast согласуется с общей философией других фабричных методов List.of()/Set.of() — ловить неправильное использование рано, а не скрывать его.',
+      },
+      variantGroup: 'j17-map-of-duplicate-key',
+    },
+    {
+      q: 'What happens at runtime?\n\nMap<String, Integer> scores = Map.of("bob", 10, "ann", 5, "bob", 20);',
+      options: [
+        'Throws IllegalArgumentException — Map.of() does not allow duplicate keys',
+        'It runs fine; scores ends up with "bob" mapped to 20 (the last value wins)',
+        'It runs fine; scores ends up with "bob" mapped to 10 (the first value wins)',
+        'Compilation error — duplicate keys cannot be detected at compile time',
+      ],
+      correct: [0],
+      variantGroup: 'j17-map-of-duplicate-key',
+      explanation:
+        'The same fail-fast rule applies no matter how many total entries are passed or where in the argument list the duplicate falls: "bob" appears as a key twice among the arguments, and Map.of() throws IllegalArgumentException as soon as it detects that duplicate, regardless of whether the duplicate values happen to be different (as here) or identical. There is no "last one wins" resolution the way a sequence of HashMap.put() calls would give you.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nMap<String, Integer> scores = Map.of("bob", 10, "ann", 5, "bob", 20);',
+        options: [
+          'Выбрасывает IllegalArgumentException — Map.of() не допускает дублирующихся ключей',
+          'Выполнится нормально; scores получит "bob", сопоставленный с 20 (побеждает последнее значение)',
+          'Выполнится нормально; scores получит "bob", сопоставленный с 10 (побеждает первое значение)',
+          'Ошибка компиляции — дублирующиеся ключи нельзя обнаружить на этапе компиляции',
+        ],
+        explanation:
+          'То же самое правило fail-fast действует независимо от того, сколько всего передано записей или где в списке аргументов встречается дубликат: "bob" встречается как ключ дважды среди аргументов, и Map.of() выбрасывает IllegalArgumentException, как только обнаруживает этот дубликат, независимо от того, различаются ли дублирующиеся значения (как здесь) или совпадают. Нет разрешения в стиле "побеждает последний", какое дала бы последовательность вызовов HashMap.put().',
+      },
+    },
   ],
 
   'java17-streams-lambdas': [
@@ -536,6 +668,34 @@ const raw = {
           'Лямбда-выражение может захватывать только локальные переменные, которые "effectively final" — то есть переменная никогда не переприсваивается нигде после своего начального присваивания, даже вне самой лямбды. Здесь total переприсваивается в 5 после определения лямбды, но до того, как что-то осмысленное с захватом было вызвано, что лишает её статуса effectively final, и компилятор отклоняет всё это в точке захвата с ошибкой компиляции, а не позволяет лямбде молча наблюдать либо старое, либо новое значение. Это ограничение существует потому, что лямбда может пережить фрейм стека метода (например, будучи переданной в другой поток), поэтому Java захватывает локальные переменные по значению/ссылке-на-финальное-значение, а не по живой ссылке, и именно effective finality делает это безопасным и однозначным.',
       },
     },
+    {
+      q: 'What is printed?\n\nList<Integer> nums = Stream.iterate(1, n -> n < 20, n -> n * 2).toList();\nSystem.out.println(nums);',
+      options: ['[1, 2, 4, 8, 16]', '[1, 2, 4, 8, 16, 32]', '[2, 4, 8, 16]', 'Infinite loop'],
+      correct: [0],
+      explanation:
+        'This is the three-argument, bounded overload of Stream.iterate() (added in Java 9): it starts from the seed (1), and on each step checks the predicate (n < 20) *before* including that value — continuing to apply the next-value function (n * 2) and re-checking, stopping as soon as the predicate becomes false. Trace: 1 (< 20, keep) -> 2 (< 20, keep) -> 4 (< 20, keep) -> 8 (< 20, keep) -> 16 (< 20, keep) -> 32 (not < 20, stop, excluded). Result: [1, 2, 4, 8, 16]. This bounded form avoids needing a separate .limit() call and, unlike the older two-argument infinite overload, naturally terminates on its own.',
+      ru: {
+        question: 'Что будет напечатано?\n\nList<Integer> nums = Stream.iterate(1, n -> n < 20, n -> n * 2).toList();\nSystem.out.println(nums);',
+        options: ['[1, 2, 4, 8, 16]', '[1, 2, 4, 8, 16, 32]', '[2, 4, 8, 16]', 'Бесконечный цикл'],
+        explanation:
+          'Это трёхаргументная, ограниченная перегрузка Stream.iterate() (добавлена в Java 9): она начинает с seed (1) и на каждом шаге проверяет предикат (n < 20) *перед* включением этого значения — продолжая применять функцию следующего значения (n * 2) и перепроверяя, останавливаясь, как только предикат становится ложным. Трассировка: 1 (< 20, оставляем) -> 2 (< 20, оставляем) -> 4 (< 20, оставляем) -> 8 (< 20, оставляем) -> 16 (< 20, оставляем) -> 32 (не < 20, стоп, исключается). Результат: [1, 2, 4, 8, 16]. Эта ограниченная форма избавляет от необходимости отдельного вызова .limit() и, в отличие от старой двухаргументной бесконечной перегрузки, естественным образом завершается сама.',
+      },
+      variantGroup: 'j17-bounded-stream-iterate',
+    },
+    {
+      q: 'What is printed?\n\nList<Integer> nums = Stream.iterate(3, n -> n < 100, n -> n * 3).toList();\nSystem.out.println(nums);',
+      options: ['[3, 9, 27, 81]', '[3, 9, 27, 81, 243]', '[9, 27, 81]', 'Infinite loop'],
+      correct: [0],
+      variantGroup: 'j17-bounded-stream-iterate',
+      explanation:
+        'The same bounded-iterate mechanics apply with a different seed, predicate, and step function: starting at 3, each value is checked against n < 100 before being kept, then multiplied by 3 for the next candidate. Trace: 3 (< 100, keep) -> 9 (< 100, keep) -> 27 (< 100, keep) -> 81 (< 100, keep) -> 243 (not < 100, stop, excluded). Result: [3, 9, 27, 81] — the predicate is always checked before inclusion, which is why the first value that fails it never appears in the output.',
+      ru: {
+        question: 'Что будет напечатано?\n\nList<Integer> nums = Stream.iterate(3, n -> n < 100, n -> n * 3).toList();\nSystem.out.println(nums);',
+        options: ['[3, 9, 27, 81]', '[3, 9, 27, 81, 243]', '[9, 27, 81]', 'Бесконечный цикл'],
+        explanation:
+          'Та же самая механика ограниченного iterate действует с другими seed, предикатом и функцией шага: начиная с 3, каждое значение проверяется на n < 100 перед сохранением, затем умножается на 3 для следующего кандидата. Трассировка: 3 (< 100, оставляем) -> 9 (< 100, оставляем) -> 27 (< 100, оставляем) -> 81 (< 100, оставляем) -> 243 (не < 100, стоп, исключается). Результат: [3, 9, 27, 81] — предикат всегда проверяется перед включением, поэтому первое не прошедшее его значение никогда не попадает в вывод.',
+      },
+    },
   ],
 
   'java17-packaging-jshell': [
@@ -606,6 +766,29 @@ const raw = {
         ],
         explanation:
           'Начиная с JEP 330 (Java 11), запускатель `java` может запускать один файл с исходным кодом напрямую — `java Greeting.java` компилирует файл в памяти и немедленно выполняет его, не создавая отдельный .class файл на диске и не требуя явного предварительного вызова `javac`. Это предназначено для быстрых скриптов, небольших утилит и учебных сценариев, а не для продакшн-деплоя; это работает для любого корректно названного файла с исходным кодом с валидным методом main(), а не конкретно названного Main.java, и по-прежнему требует, чтобы имя класса внутри файла соответствовало обычным правилам Java (хотя само имя файла более гибкое, чем классическое правило "публичный класс должен совпадать с именем файла" именно для этого однофайлового режима запуска).',
+      },
+    },
+    {
+      q: 'What is the primary purpose of the jlink tool?',
+      options: [
+        'To create a custom, minimal Java runtime image containing only the modules an application actually needs',
+        'To compile .java source files into .class bytecode',
+        'To package .class files into a single executable .jar file',
+        'To launch JShell in a special linked mode',
+      ],
+      correct: [0],
+      explanation:
+        'jlink assembles a custom runtime image (a self-contained set of the JDK/JRE modules an application depends on, plus a launcher) rather than relying on a full, general-purpose JRE installation on the target machine — this can produce a much smaller deployment footprint, especially valuable for containerized or embedded deployments. It operates on modules (introduced by the Java Platform Module System), not raw source files or plain jars, and is unrelated to compiling source code (javac\'s job) or bundling classes into a jar (the jar tool\'s job) — jlink is specifically about producing a trimmed-down, runnable Java runtime.',
+      ru: {
+        question: 'Какова основная цель инструмента jlink?',
+        options: [
+          'Создать пользовательский, минимальный образ среды выполнения Java, содержащий только те модули, которые реально нужны приложению',
+          'Скомпилировать .java исходные файлы в .class байт-код',
+          'Упаковать .class файлы в единый исполняемый .jar файл',
+          'Запустить JShell в особом связанном режиме',
+        ],
+        explanation:
+          'jlink собирает пользовательский образ среды выполнения (самодостаточный набор модулей JDK/JRE, от которых зависит приложение, плюс лаунчер), вместо того чтобы полагаться на полную, универсальную установку JRE на целевой машине — это может дать заметно меньший размер развёртывания, особенно ценно для контейнерных или встраиваемых развёртываний. Он оперирует модулями (введёнными системой модулей платформы Java), а не сырыми исходными файлами или обычными jar-файлами, и не связан ни с компиляцией исходного кода (это работа javac), ни с упаковкой классов в jar (это работа инструмента jar) — jlink конкретно про создание урезанной, запускаемой среды выполнения Java.',
       },
     },
   ],
@@ -683,6 +866,34 @@ const raw = {
           'Thread.sleep() объявлен как `throws InterruptedException`, а InterruptedException расширяет Exception (не RuntimeException), делая его проверяемым исключением, подчиняющимся принуждению компилятора: любой метод, вызывающий sleep() без обработки этого исключения, обязан сам объявить `throws InterruptedException` (или более широкий проверяемый супертип), иначе код не скомпилируется. Как написано, pause() не делает ни того, ни другого, поэтому это не скомпилируется — исправление — либо обернуть вызов в try/catch, либо добавить `throws InterruptedException` в собственную сигнатуру pause(). Это требование действует одинаково независимо от того, в каком потоке выполняется вызывающий код.',
       },
     },
+    {
+      q: 'What is printed?\n\nAtomicInteger counter = new AtomicInteger(0);\ncounter.incrementAndGet();\ncounter.incrementAndGet();\nSystem.out.println(counter.get());',
+      options: ['2', '1', '0', 'Compilation error'],
+      correct: [0],
+      variantGroup: 'j17-atomic-integer-increment',
+      explanation:
+        'AtomicInteger provides thread-safe operations on a single int value without needing external synchronization, using low-level compare-and-swap hardware operations internally. incrementAndGet() atomically increases the value by 1 and returns the new value — calling it twice takes counter from 0 to 1, then from 1 to 2. get() then reads the current value, 2. Unlike a plain `int` with `count++` (which is not atomic and can lose updates under concurrent access), every operation on an AtomicInteger is guaranteed to be a single indivisible step, safe to call from multiple threads without a lock.',
+      ru: {
+        question: 'Что будет напечатано?\n\nAtomicInteger counter = new AtomicInteger(0);\ncounter.incrementAndGet();\ncounter.incrementAndGet();\nSystem.out.println(counter.get());',
+        options: ['2', '1', '0', 'Ошибка компиляции'],
+        explanation:
+          'AtomicInteger предоставляет потокобезопасные операции над одним значением int без необходимости во внешней синхронизации, используя внутри низкоуровневые аппаратные операции compare-and-swap. incrementAndGet() атомарно увеличивает значение на 1 и возвращает новое значение — вызов его дважды переводит counter с 0 на 1, затем с 1 на 2. get() затем читает текущее значение, 2. В отличие от обычного `int` с `count++` (что не атомарно и может терять обновления при конкурентном доступе), каждая операция над AtomicInteger гарантированно является единым неделимым шагом, безопасным для вызова из нескольких потоков без блокировки.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nAtomicInteger score = new AtomicInteger(10);\nscore.incrementAndGet();\nscore.incrementAndGet();\nscore.incrementAndGet();\nSystem.out.println(score.get());',
+      options: ['13', '10', '3', 'Compilation error'],
+      correct: [0],
+      variantGroup: 'j17-atomic-integer-increment',
+      explanation:
+        'The same atomic increment semantics apply regardless of the starting value or how many times it\'s called: starting at 10, three calls to incrementAndGet() atomically bump the value to 11, then 12, then 13, each call guaranteed to see the correctly-updated result of the previous one even under concurrent use. get() returns the final value, 13.',
+      ru: {
+        question: 'Что будет напечатано?\n\nAtomicInteger score = new AtomicInteger(10);\nscore.incrementAndGet();\nscore.incrementAndGet();\nscore.incrementAndGet();\nSystem.out.println(score.get());',
+        options: ['13', '10', '3', 'Ошибка компиляции'],
+        explanation:
+          'Та же самая атомарная семантика инкремента действует независимо от начального значения или количества вызовов: начиная с 10, три вызова incrementAndGet() атомарно поднимают значение до 11, затем 12, затем 13, каждый вызов гарантированно видит корректно обновлённый результат предыдущего даже при конкурентном использовании. get() возвращает итоговое значение, 13.',
+      },
+    },
   ],
 
   'java17-io': [
@@ -746,6 +957,54 @@ const raw = {
         options: ['admin null', 'admin secret', 'null null', 'Выбрасывает NotSerializableException'],
         explanation:
           'Ключевое слово `transient` помечает поле как полностью исключённое из процесса сериализации по умолчанию — его значение просто не записывается в сериализованный поток байт. При десериализации объекта transient-поля не сохраняют своё исходное значение; вместо этого они сбрасываются к значению по умолчанию для своего типа (null для ссылочных типов, 0/false для примитивов), независимо от того, что поле хранило до сериализации. username (не transient) проходит цикл нормально как "admin", а password (transient) возвращается как null, хотя до этого было "secret" — распространённый приём для намеренного исключения чувствительных или несериализуемых полей (например, живого соединения с базой данных) из сериализованного вывода.',
+      },
+    },
+    {
+      q: 'What happens at runtime if the directory /tmp/data already exists?\n\nFiles.createDirectory(Path.of("/tmp/data"));',
+      options: [
+        'Throws FileAlreadyExistsException',
+        'It runs fine, silently doing nothing',
+        'It runs fine, replacing the existing directory',
+        'Compilation error',
+      ],
+      correct: [0],
+      variantGroup: 'j17-createdirectory-vs-createdirectories',
+      explanation:
+        'Files.createDirectory() (singular) creates exactly one new directory and requires that its parent already exists, but it is strict about the target itself not already existing — if it does, it throws FileAlreadyExistsException rather than treating the call as a harmless no-op. This strictness is intentional: createDirectory() is meant for callers who specifically expect to be creating something new and want to know if that assumption was wrong.',
+      ru: {
+        question: 'Что произойдёт во время выполнения, если директория /tmp/data уже существует?\n\nFiles.createDirectory(Path.of("/tmp/data"));',
+        options: [
+          'Выбрасывает FileAlreadyExistsException',
+          'Выполнится нормально, молча ничего не делая',
+          'Выполнится нормально, заменив существующую директорию',
+          'Ошибка компиляции',
+        ],
+        explanation:
+          'Files.createDirectory() (в единственном числе) создаёт ровно одну новую директорию и требует, чтобы её родитель уже существовал, но он строг в отношении того, что сама цель ещё не существует — если существует, он выбрасывает FileAlreadyExistsException, а не считает вызов безобидным no-op. Эта строгость намеренна: createDirectory() предназначен для вызывающих, которые конкретно ожидают создать что-то новое и хотят узнать, если это предположение было неверным.',
+      },
+    },
+    {
+      q: 'What happens at runtime if the directory /tmp/data already exists?\n\nFiles.createDirectories(Path.of("/tmp/data"));',
+      options: [
+        'It runs fine, silently doing nothing (the directory already satisfies the request)',
+        'Throws FileAlreadyExistsException',
+        'It runs fine, replacing the existing directory',
+        'Compilation error',
+      ],
+      correct: [0],
+      variantGroup: 'j17-createdirectory-vs-createdirectories',
+      explanation:
+        'Files.createDirectories() (plural) behaves differently on purpose: it creates any missing parent directories along the path as needed, and — unlike createDirectory() — it treats an already-existing target directory as success rather than an error, since the caller\'s actual goal ("make sure this directory path exists") is already satisfied. This makes createDirectories() the safer, more idempotent choice for setup code that just wants a directory structure to exist, regardless of whether it existed before.',
+      ru: {
+        question: 'Что произойдёт во время выполнения, если директория /tmp/data уже существует?\n\nFiles.createDirectories(Path.of("/tmp/data"));',
+        options: [
+          'Выполнится нормально, молча ничего не делая (директория уже удовлетворяет запрос)',
+          'Выбрасывает FileAlreadyExistsException',
+          'Выполнится нормально, заменив существующую директорию',
+          'Ошибка компиляции',
+        ],
+        explanation:
+          'Files.createDirectories() (во множественном числе) ведёт себя иначе намеренно: он создаёт любые недостающие родительские директории по пути по мере необходимости, и — в отличие от createDirectory() — он считает уже существующую целевую директорию успехом, а не ошибкой, поскольку реальная цель вызывающего ("убедиться, что этот путь директории существует") уже удовлетворена. Это делает createDirectories() более безопасным, более идемпотентным выбором для кода настройки, которому просто нужно, чтобы структура директорий существовала, независимо от того, существовала ли она раньше.',
       },
     },
   ],
@@ -843,6 +1102,34 @@ const raw = {
           'SQLException напрямую расширяет Exception, делая его проверяемым исключением — используемые здесь методы JDBC API (Connection.prepareStatement(), в некоторых сценариях драйверов PreparedStatement.setString(), и executeUpdate()) все объявлены как потенциально бросающие его, поэтому любой метод, их вызывающий, обязан либо перехватить SQLException в try/catch, либо сам объявить `throws SQLException`, передав обязательство своему вызывающему коду, ровно как это делает здесь saveUser(). Это то же самое правило распространения проверяемых исключений, что применяется к любому проверяемому исключению в Java, а не что-то специфичное для объектов Connection или нестатических методов.',
       },
     },
+    {
+      q: 'What does PreparedStatement.executeQuery() return?',
+      options: ['A ResultSet containing the query results', 'An int representing rows affected', 'A boolean indicating success', 'void'],
+      correct: [0],
+      variantGroup: 'j17-executequery-vs-executeupdate-return',
+      explanation:
+        'executeQuery() is specifically meant for SELECT statements that retrieve data, so it returns a ResultSet — a cursor-like object the caller iterates over (via next()) to read each returned row\'s columns. This is distinct from statements that modify data (INSERT/UPDATE/DELETE), which use executeUpdate() instead and get back a row-count int rather than a ResultSet, since there\'s no tabular data to return for those.',
+      ru: {
+        question: 'Что возвращает PreparedStatement.executeQuery()?',
+        options: ['ResultSet, содержащий результаты запроса', 'int, представляющий число затронутых строк', 'boolean, указывающий на успех', 'void'],
+        explanation:
+          'executeQuery() специально предназначен для операторов SELECT, извлекающих данные, поэтому он возвращает ResultSet — объект вроде курсора, который вызывающий код перебирает (через next()), чтобы прочитать столбцы каждой возвращённой строки. Это отличается от операторов, изменяющих данные (INSERT/UPDATE/DELETE), которые вместо этого используют executeUpdate() и получают обратно int с числом строк, а не ResultSet, поскольку для них нет табличных данных для возврата.',
+      },
+    },
+    {
+      q: 'What does PreparedStatement.executeUpdate() return?',
+      options: ['An int representing the number of rows affected', 'A ResultSet containing the affected rows', 'A boolean indicating success', 'void'],
+      correct: [0],
+      variantGroup: 'j17-executequery-vs-executeupdate-return',
+      explanation:
+        'executeUpdate() is used for INSERT, UPDATE, DELETE, and DDL statements that don\'t produce tabular results — instead of a ResultSet, it returns an int reporting how many rows were affected by the statement (0 if none matched, for example). This is the mirror image of executeQuery()\'s contract: executeQuery() is for reading data and returns a ResultSet, executeUpdate() is for changing data and returns a row count.',
+      ru: {
+        question: 'Что возвращает PreparedStatement.executeUpdate()?',
+        options: ['int, представляющий число затронутых строк', 'ResultSet, содержащий затронутые строки', 'boolean, указывающий на успех', 'void'],
+        explanation:
+          'executeUpdate() используется для операторов INSERT, UPDATE, DELETE и DDL, не выдающих табличных результатов — вместо ResultSet он возвращает int, сообщающий, сколько строк было затронуто оператором (0, если ни одна не подошла, например). Это зеркальное отражение контракта executeQuery(): executeQuery() для чтения данных и возвращает ResultSet, executeUpdate() для изменения данных и возвращает количество строк.',
+      },
+    },
   ],
 
   'java17-localization': [
@@ -926,6 +1213,34 @@ const raw = {
         ],
         explanation:
           'DateTimeFormatter.ofLocalizedDate(style) создаёт форматтер, чей шаблон даты разрешается согласно тому, какая локаль для него действует, а .withLocale(Locale.FRANCE) явно переопределяет локаль этого форматтера на французскую, независимо от того, на что установлена собственная локаль JVM по умолчанию. Для стиля MEDIUM во французском соглашении 15 марта 2024 отображается как "15 mars 2024" (день, затем локализованное название месяца, затем год) — совершенно иначе и по языку, и по порядку полей, чем американский стиль MEDIUM ("Mar 15, 2024"). Явная установка локали форматтера именно так и позволяет приложению корректно отображать даты для локали конкретного пользователя, а не всегда локали сервера/JVM по умолчанию.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nNumberFormat cf = NumberFormat.getCurrencyInstance(Locale.US);\nSystem.out.println(cf.format(1234.5));',
+      options: ['$1,234.50', '1,234.50 USD', '$1234.5', '1.234,50 $'],
+      correct: [0],
+      variantGroup: 'j17-currency-format-locale',
+      explanation:
+        'getCurrencyInstance(locale) returns a formatter that applies both the locale\'s numeric grouping/decimal conventions AND its currency symbol placement/rounding — for Locale.US, that means a leading "$" symbol, a comma as the thousands separator, a period as the decimal separator, and exactly two decimal places for cents (rounding 1234.5 up to display as 1,234.50). This is different from a plain NumberFormat.getInstance(), which formats the number but without any currency symbol or forced decimal-place count.',
+      ru: {
+        question: 'Что будет напечатано?\n\nNumberFormat cf = NumberFormat.getCurrencyInstance(Locale.US);\nSystem.out.println(cf.format(1234.5));',
+        options: ['$1,234.50', '1,234.50 USD', '$1234.5', '1.234,50 $'],
+        explanation:
+          'getCurrencyInstance(locale) возвращает форматтер, применяющий и соглашения локали о группировке чисел/десятичном разделителе, И размещение/округление символа валюты — для Locale.US это означает ведущий символ "$", запятую как разделитель тысяч, точку как десятичный разделитель и ровно два знака после запятой для центов (округляя 1234.5 для отображения как 1,234.50). Это отличается от обычного NumberFormat.getInstance(), который форматирует число, но без символа валюты или принудительного количества знаков после запятой.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nNumberFormat cf = NumberFormat.getCurrencyInstance(Locale.UK);\nSystem.out.println(cf.format(1234.5));',
+      options: ['£1,234.50', '1,234.50 GBP', '€1,234.50', '1.234,50 £'],
+      correct: [0],
+      variantGroup: 'j17-currency-format-locale',
+      explanation:
+        'The same currency-formatting mechanism applies, but Locale.UK supplies a different currency symbol ("£" for pounds sterling) while keeping the same comma-for-thousands, period-for-decimal grouping convention as US English (both being English-speaking locales in this respect, even though the currency differs). The result is "£1,234.50" — same numeric formatting shape as the US example, different currency symbol, illustrating that the currency symbol and the numeric grouping conventions are configured independently by the locale.',
+      ru: {
+        question: 'Что будет напечатано?\n\nNumberFormat cf = NumberFormat.getCurrencyInstance(Locale.UK);\nSystem.out.println(cf.format(1234.5));',
+        options: ['£1,234.50', '1,234.50 GBP', '€1,234.50', '1.234,50 £'],
+        explanation:
+          'Тот же самый механизм форматирования валюты действует, но Locale.UK предоставляет другой символ валюты ("£" для фунта стерлингов), сохраняя то же соглашение о группировке через запятую для тысяч и точку для дробной части, что и американский английский (оба — англоязычные локали в этом отношении, хотя валюта различается). Результат — "£1,234.50" — та же форма числового форматирования, что и в американском примере, другой символ валюты, иллюстрируя, что символ валюты и соглашения о числовой группировке настраиваются локалью независимо друг от друга.',
       },
     },
   ],
