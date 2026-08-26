@@ -83,6 +83,94 @@ const raw = {
           'Автобоксинг небольших int-литералов проходит через Integer.valueOf(), который по спецификации JVM обязан кэшировать и переиспользовать экземпляры Integer для значений от -128 до 127 включительно — поэтому a и b, оба упакованные из 127, в итоге ссылаются на один и тот же кэшированный объект Integer, делая a == b (сравнение ссылок) истинным. 200 выходит за пределы этого кэшируемого диапазона, поэтому каждая упаковка создаёт по-настоящему новый объект Integer, делая c == d ложным, хотя их .intValue() равны. Именно поэтому сравнивать упакованные типы-обёртки нужно через .equals(), а не через ==, ведь == лишь случайно "работает" в пределах небольшого кэшируемого диапазона.',
       },
     },
+    {
+      q: 'Daylight saving time in the US begins on March 13, 2022, moving clocks forward one hour at 2 a.m. (1:59 a.m. jumps straight to 3:00 a.m.). What is printed?\n\nvar localDate = LocalDate.of(2022, 3, 13);\nvar localTime = LocalTime.of(1, 30);\nvar zone = ZoneId.of("America/New_York");\nvar zdt = ZonedDateTime.of(localDate, localTime, zone);\n\nvar offsetBefore = zdt.getOffset();\nvar later = zdt.plusHours(1);\nSystem.out.println(later.getHour() + " " + offsetBefore.equals(later.getOffset()));',
+      options: ['3 false', '2 true', '3 true', '2 false'],
+      correct: [0],
+      explanation:
+        'ZonedDateTime arithmetic accounts for the target zone\'s actual wall-clock transitions, not just raw elapsed time. Starting at 1:30 a.m. and adding 1 hour would naively land on 2:30 a.m. — but that exact wall-clock moment never occurs in America/New_York on this date, since the clock jumps from 1:59 a.m. straight to 3:00 a.m., skipping the 2 a.m. hour entirely. plusHours() still adds a real, physical hour of elapsed time (not "the next wall-clock hour label"), which lands after the spring-forward gap, on 3:00 a.m. — hour 3. Because the zone\'s UTC offset itself changes across that transition (standard time shifts to daylight time), the offset before and after also differ, so offsetBefore.equals(later.getOffset()) is false. Result: "3 false".',
+      variantGroup: 'java17-dst-zoned-arithmetic',
+      ru: {
+        question: 'В США переход на летнее время 13 марта 2022 года переводит часы на час вперёд в 2 часа ночи (1:59 сразу становится 3:00). Что будет напечатано?\n\nvar localDate = LocalDate.of(2022, 3, 13);\nvar localTime = LocalTime.of(1, 30);\nvar zone = ZoneId.of("America/New_York");\nvar zdt = ZonedDateTime.of(localDate, localTime, zone);\n\nvar offsetBefore = zdt.getOffset();\nvar later = zdt.plusHours(1);\nSystem.out.println(later.getHour() + " " + offsetBefore.equals(later.getOffset()));',
+        options: ['3 false', '2 true', '3 true', '2 false'],
+        explanation:
+          'Арифметика ZonedDateTime учитывает реальные переходы настенных часов в целевой зоне, а не просто сырое прошедшее время. Начав с 1:30 ночи и прибавив 1 час, наивно можно было бы ожидать 2:30 ночи — но этого точного момента настенных часов в America/New_York в эту дату вообще не существует, поскольку часы прыгают с 1:59 сразу на 3:00, полностью пропуская час "2 часа ночи". plusHours() всё равно прибавляет реальный, физический час прошедшего времени (а не "следующую метку часа настенных часов"), что приземляется уже после весеннего скачка, на 3:00 — час 3. Поскольку сам UTC-смещение зоны меняется на этом переходе (стандартное время сдвигается на летнее), смещение до и после тоже различаются, поэтому offsetBefore.equals(later.getOffset()) ложно. Результат: "3 false".',
+      },
+    },
+    {
+      q: 'What is printed?\n\nvar line = new StringBuilder("-");\nvar anotherLine = line.append("-");\nSystem.out.print(line == anotherLine);\nSystem.out.print(" ");\nSystem.out.print(line.length());',
+      options: ['true 2', 'false 2', 'true 1', 'false 1'],
+      correct: [0],
+      variantGroup: 'java17-stringbuilder-append-identity',
+      explanation:
+        'StringBuilder.append() mutates the StringBuilder in place and returns `this` — the exact same object reference it was called on — precisely so append calls can be chained fluently. Because append() returns the same reference, `anotherLine` ends up pointing at the identical object as `line`, making `line == anotherLine` (reference comparison) true. The mutation added one character to the original "-", making the buffer\'s content "--", so length() is 2. This is a sharp contrast with String\'s concat()/+ operations, which always return a brand-new String object, leaving == false in the analogous scenario.',
+      ru: {
+        question: 'Что будет напечатано?\n\nvar line = new StringBuilder("-");\nvar anotherLine = line.append("-");\nSystem.out.print(line == anotherLine);\nSystem.out.print(" ");\nSystem.out.print(line.length());',
+        options: ['true 2', 'false 2', 'true 1', 'false 1'],
+        explanation:
+          'StringBuilder.append() изменяет StringBuilder на месте и возвращает `this` — ровно ту же самую ссылку на объект, на котором был вызван — именно для того, чтобы вызовы append можно было связывать в цепочку. Поскольку append() возвращает ту же ссылку, anotherLine в итоге указывает на тот же самый объект, что и line, делая line == anotherLine (сравнение ссылок) истинным. Изменение добавило один символ к исходному "-", сделав содержимое буфера "--", поэтому length() равно 2. Это резко контрастирует с операциями concat()/+ у String, которые всегда возвращают совершенно новый объект String, оставляя == ложным в аналогичном сценарии.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nvar line = new String("-");\nvar anotherLine = line.concat("-");\nSystem.out.print(line == anotherLine);\nSystem.out.print(" ");\nSystem.out.print(line.length());',
+      options: ['false 1', 'true 1', 'false 2', 'true 2'],
+      correct: [0],
+      variantGroup: 'java17-stringbuilder-append-identity',
+      explanation:
+        'String.concat() cannot mutate `line`, because String is immutable — instead it computes and returns a brand-new String object containing the combined text, leaving the original completely untouched. So `anotherLine` refers to a genuinely different object than `line`, making `line == anotherLine` false. Since `line` itself was never modified, its length() remains 1 (still just "-"). This is the mirror image of StringBuilder\'s append(), which mutates in place and returns the same reference (making == true there) — the pairing highlights exactly how immutable vs. mutable text types behave differently under an "identical-looking" chained call.',
+      ru: {
+        question: 'Что будет напечатано?\n\nvar line = new String("-");\nvar anotherLine = line.concat("-");\nSystem.out.print(line == anotherLine);\nSystem.out.print(" ");\nSystem.out.print(line.length());',
+        options: ['false 1', 'true 1', 'false 2', 'true 2'],
+        explanation:
+          'String.concat() не может изменить line, поскольку String неизменяем — вместо этого он вычисляет и возвращает совершенно новый объект String с объединённым текстом, оставляя исходный полностью нетронутым. Поэтому anotherLine ссылается на по-настоящему другой объект, чем line, делая line == anotherLine ложным. Поскольку сам line никогда не изменялся, его length() остаётся равным 1 (всё ещё просто "-"). Это зеркальное отражение append() у StringBuilder, который изменяет на месте и возвращает ту же ссылку (делая == истинным там) — эта пара наглядно показывает, как неизменяемые и изменяемые текстовые типы ведут себя по-разному при внешне одинаково выглядящем цепочном вызове.',
+      },
+    },
+    {
+      q: 'Which local variable declaration does NOT compile?',
+      options: [
+        'double num1, int num2 = 0;',
+        'int num1, num2;',
+        'int num1, num2 = 0;',
+        'int num1 = 0, num2 = 0;',
+      ],
+      correct: [0],
+      explanation:
+        'A single local variable declaration statement can declare multiple variables separated by commas, but they must all share the type stated once at the front of the statement — you cannot restate or change the type partway through the same statement. `double num1, int num2 = 0;` illegally tries to introduce a second, different type (int) inside what Java parses as one `double`-typed declaration list, which is a syntax error. The other three options are all valid: multiple variables of the same declared type, with or without initializers, mixed freely within one statement, are perfectly legal.',
+      ru: {
+        question: 'Какое объявление локальной переменной НЕ скомпилируется?',
+        options: [
+          'double num1, int num2 = 0;',
+          'int num1, num2;',
+          'int num1, num2 = 0;',
+          'int num1 = 0, num2 = 0;',
+        ],
+        explanation:
+          'Один оператор объявления локальной переменной может объявлять несколько переменных, разделённых запятыми, но все они должны иметь тип, указанный один раз в начале оператора — нельзя повторно указать или сменить тип посреди того же оператора. `double num1, int num2 = 0;` незаконно пытается ввести второй, другой тип (int) внутри того, что Java разбирает как один список объявлений с типом double, что является синтаксической ошибкой. Остальные три варианта все валидны: несколько переменных одного объявленного типа, с инициализаторами или без, свободно смешанные в одном операторе, полностью законны.',
+      },
+    },
+    {
+      q: 'LocalTime.of() has several overloads. Which of the following is NOT one of them?',
+      options: [
+        'LocalTime.of(int hour, int minute, int second, int nanoOfSecond, int picoOfSecond)',
+        'LocalTime.of(int hour, int minute)',
+        'LocalTime.of(int hour, int minute, int second)',
+        'LocalTime.of(int hour, int minute, int second, int nanoOfSecond)',
+      ],
+      correct: [0],
+      explanation:
+        'LocalTime.of() offers exactly three overloads, progressively adding precision: (hour, minute), (hour, minute, second), and (hour, minute, second, nanoOfSecond) — nanoseconds is the finest-grained unit LocalTime supports, and there is no further "picosecond" parameter or overload beyond that. A 5-argument overload ending in a picosecond value does not exist anywhere in the LocalTime API; questions like this test whether you\'ve memorized the actual overload set rather than assuming an ever-finer time unit must exist just because nanoseconds does.',
+      ru: {
+        question: 'У LocalTime.of() есть несколько перегрузок. Какая из следующих НЕ является одной из них?',
+        options: [
+          'LocalTime.of(int hour, int minute, int second, int nanoOfSecond, int picoOfSecond)',
+          'LocalTime.of(int hour, int minute)',
+          'LocalTime.of(int hour, int minute, int second)',
+          'LocalTime.of(int hour, int minute, int second, int nanoOfSecond)',
+        ],
+        explanation:
+          'У LocalTime.of() есть ровно три перегрузки, постепенно добавляющие точность: (hour, minute), (hour, minute, second) и (hour, minute, second, nanoOfSecond) — наносекунды — самая тонкая единица, которую поддерживает LocalTime, и никакого дальнейшего параметра или перегрузки с "пикосекундами" за её пределами не существует. Перегрузки с 5 аргументами, заканчивающейся значением пикосекунд, нигде в API LocalTime нет; подобные вопросы проверяют, запомнили ли вы реальный набор перегрузок, а не предполагаете, что ещё более тонкая единица времени обязательно существует просто потому, что существуют наносекунды.',
+      },
+    },
   ],
 
   'java17-control-flow': [
