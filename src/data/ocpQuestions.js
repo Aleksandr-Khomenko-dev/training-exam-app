@@ -1275,6 +1275,54 @@ const extra = {
           'describe() — конкретный метод, определённый в абстрактном классе Shape, но он вызывает area(), который в Shape абстрактен и реально реализован только конкретным подклассом — это распространённый и мощный паттерн, где суперкласс предоставляет общую структуру/логику, делегируя конкретную часть тому подклассу, который в итоге её завершит (облегчённая форма паттерна Template Method). Во время выполнения s — это Square, поэтому area() вычисляет side * side = 4 * 4 = 16.0 (double, отсюда ".0"), и describe() соединяет это в напечатанную строку "Area: 16.0".',
       },
     },
+    {
+      q: 'What happens at compile time?\n\nclass Vehicle {\n  Vehicle(String name) { System.out.print(name); }\n}\nclass Car extends Vehicle {\n  Car() { }\n}',
+      options: [
+        'Compilation error — Car\'s implicit no-arg constructor tries to call super(), but Vehicle has no no-arg constructor',
+        'It compiles fine; Car() silently calls Vehicle(null)',
+        'It compiles fine; Vehicle gets an automatic no-arg constructor added',
+        'It compiles fine, but throws an exception when Car is instantiated',
+      ],
+      correct: [0],
+      variantGroup: 'ocp-missing-noarg-super-constructor',
+      explanation:
+        'Every constructor implicitly starts with a call to super() unless it explicitly calls super(...) or this(...) itself — this implicit call requires the parent class to actually have a no-arg constructor available. Vehicle only defines a one-arg constructor (Vehicle(String)), so it does NOT get an automatic no-arg constructor (that only happens when a class declares no constructors at all). Car() has no explicit super(...) call, so the compiler inserts an implicit super() call targeting a no-arg Vehicle constructor that doesn\'t exist, causing a compilation error.',
+      ru: {
+        question: 'Что произойдёт на этапе компиляции?\n\nclass Vehicle {\n  Vehicle(String name) { System.out.print(name); }\n}\nclass Car extends Vehicle {\n  Car() { }\n}',
+        options: [
+          'Ошибка компиляции — неявный конструктор без аргументов у Car пытается вызвать super(), но у Vehicle нет конструктора без аргументов',
+          'Компилируется нормально; Car() молча вызывает Vehicle(null)',
+          'Компилируется нормально; Vehicle автоматически получает конструктор без аргументов',
+          'Компилируется нормально, но выбрасывает исключение при создании Car',
+        ],
+        explanation:
+          'Каждый конструктор неявно начинается с вызова super(), если он явно не вызывает super(...) или this(...) сам — этот неявный вызов требует, чтобы у родительского класса реально был доступен конструктор без аргументов. Vehicle определяет только однопараметрический конструктор (Vehicle(String)), поэтому он НЕ получает автоматический конструктор без аргументов (это происходит только когда класс вообще не объявляет ни одного конструктора). У Car() нет явного вызова super(...), поэтому компилятор вставляет неявный вызов super(), нацеленный на несуществующий конструктор Vehicle без аргументов, вызывая ошибку компиляции.',
+      },
+    },
+    {
+      q: 'What happens at compile time?\n\nclass Animal {\n  Animal(String species) { System.out.print(species); }\n}\nclass Dog extends Animal {\n  Dog() { }\n}',
+      options: [
+        'Compilation error — Dog\'s implicit no-arg constructor tries to call super(), but Animal has no no-arg constructor',
+        'It compiles fine; Dog() silently calls Animal(null)',
+        'It compiles fine; Animal gets an automatic no-arg constructor added',
+        'It compiles fine, but throws an exception when Dog is instantiated',
+      ],
+      correct: [0],
+      variantGroup: 'ocp-missing-noarg-super-constructor',
+      explanation:
+        'The same rule applies regardless of class names: Animal declares only a one-arg constructor, so no automatic no-arg constructor is generated for it. Dog()\'s implicit super() call has no matching no-arg constructor on Animal to invoke, so the compiler rejects it. The fix in either version of this scenario is the same — add an explicit super(someValue) call inside the subclass constructor, matching one of the parent\'s actual constructors.',
+      ru: {
+        question: 'Что произойдёт на этапе компиляции?\n\nclass Animal {\n  Animal(String species) { System.out.print(species); }\n}\nclass Dog extends Animal {\n  Dog() { }\n}',
+        options: [
+          'Ошибка компиляции — неявный конструктор без аргументов у Dog пытается вызвать super(), но у Animal нет конструктора без аргументов',
+          'Компилируется нормально; Dog() молча вызывает Animal(null)',
+          'Компилируется нормально; Animal автоматически получает конструктор без аргументов',
+          'Компилируется нормально, но выбрасывает исключение при создании Dog',
+        ],
+        explanation:
+          'То же самое правило действует независимо от названий классов: Animal объявляет только однопараметрический конструктор, поэтому для него не генерируется автоматический конструктор без аргументов. Неявному вызову super() у Dog() не с чем сопоставиться среди конструкторов Animal, поэтому компилятор его отклоняет. Исправление в обоих вариантах этого сценария одинаково — добавить явный вызов super(некоеЗначение) внутри конструктора подкласса, соответствующий одному из реальных конструкторов родителя.',
+      },
+    },
   ],
   'generics-collections': [
     {
@@ -1288,6 +1336,54 @@ const extra = {
         options: ['[1, 2, 3]', '[3, 1, 2]', '[3, 2, 1]', 'Ошибка компиляции'],
         explanation:
           'Collections.sort(list) изменяет переданный List на месте, переставляя его элементы в порядке возрастания по естественному порядку — для Integer, чья реализация Comparable сравнивает числовое значение, это означает сначала наименьшее. Исходный порядок вставки {3, 1, 2} после сортировки совершенно не важен; элементы в итоге строго упорядочены как [1, 2, 3]. Обратите внимание, что для этого нужен изменяемый список — сам List.of(...) возвращает неизменяемый список, который sort() не смог бы изменить напрямую, именно поэтому код сначала оборачивает его в `new ArrayList<>(...)`, копируя элементы в по-настоящему изменяемый список перед сортировкой.',
+      },
+    },
+    {
+      q: 'What happens at runtime?\n\nSet<Object> set = new TreeSet<>();\nset.add("a");\nset.add(5);',
+      options: [
+        'Throws ClassCastException — String and Integer cannot be compared to each other via natural ordering',
+        'It runs fine; TreeSet stores both regardless of type',
+        'Compilation error — TreeSet<Object> cannot accept mixed types',
+        'It runs fine, silently converting 5 to "5" for comparison',
+      ],
+      correct: [0],
+      explanation:
+        'A TreeSet with no explicit Comparator sorts elements using their natural ordering, which means every pair of elements must be mutually comparable via compareTo(). Adding "a" succeeds (a 1-element set trivially has nothing to compare against yet), but adding 5 forces the TreeSet to compare the new Integer against the existing String to find its sorted position — and String.compareTo() has no defined way to compare against an Integer. Since TreeSet<Object> compiles without restricting element types (the type-safety hole this question tests), the mismatch is only caught at runtime, throwing ClassCastException.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nSet<Object> set = new TreeSet<>();\nset.add("a");\nset.add(5);',
+        options: [
+          'Выбрасывает ClassCastException — String и Integer нельзя сравнить друг с другом через естественный порядок',
+          'Выполнится нормально; TreeSet хранит оба значения независимо от типа',
+          'Ошибка компиляции — TreeSet<Object> не может принимать смешанные типы',
+          'Выполнится нормально, молча преобразуя 5 в "5" для сравнения',
+        ],
+        explanation:
+          'TreeSet без явного Comparator сортирует элементы по их естественному порядку, а значит каждая пара элементов должна быть взаимно сравнима через compareTo(). Добавление "a" проходит успешно (множество из 1 элемента пока не с чем сравнивать), но добавление 5 заставляет TreeSet сравнить новый Integer с существующим String, чтобы найти его отсортированную позицию — а у String.compareTo() нет определённого способа сравнения с Integer. Поскольку TreeSet<Object> компилируется без ограничения типов элементов (именно эту дыру в типобезопасности проверяет вопрос), несоответствие обнаруживается только во время выполнения, выбрасывая ClassCastException.',
+      },
+      variantGroup: 'ocp-treeset-mixed-type-classcast',
+    },
+    {
+      q: 'What happens at runtime?\n\nSet<Object> set = new TreeSet<>();\nset.add(3.14);\nset.add("pi");',
+      options: [
+        'Throws ClassCastException — Double and String cannot be compared to each other via natural ordering',
+        'It runs fine; TreeSet stores both regardless of type',
+        'Compilation error — TreeSet<Object> cannot accept mixed types',
+        'It runs fine, silently converting "pi" to a numeric value for comparison',
+      ],
+      correct: [0],
+      variantGroup: 'ocp-treeset-mixed-type-classcast',
+      explanation:
+        'Same underlying hazard with different types: TreeSet\'s natural ordering needs every element to be comparable against every other element already in the set. 3.14 (a Double) goes in fine as the sole element, but adding "pi" (a String) forces a compareTo() call between incompatible types, which has no valid implementation — Double.compareTo() doesn\'t know how to rank itself against a String. The compiler cannot catch this because TreeSet<Object> imposes no compile-time restriction on what "comparable" element types must be used together, so the failure only surfaces at runtime as ClassCastException.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nSet<Object> set = new TreeSet<>();\nset.add(3.14);\nset.add("pi");',
+        options: [
+          'Выбрасывает ClassCastException — Double и String нельзя сравнить друг с другом через естественный порядок',
+          'Выполнится нормально; TreeSet хранит оба значения независимо от типа',
+          'Ошибка компиляции — TreeSet<Object> не может принимать смешанные типы',
+          'Выполнится нормально, молча преобразуя "pi" в числовое значение для сравнения',
+        ],
+        explanation:
+          'Та же самая опасность с другими типами: естественный порядок TreeSet требует, чтобы каждый элемент был сравним с каждым уже находящимся в множестве элементом. 3.14 (Double) добавляется нормально как единственный элемент, но добавление "pi" (String) заставляет вызвать compareTo() между несовместимыми типами, для чего нет валидной реализации — Double.compareTo() не знает, как сравнить себя со String. Компилятор не может это поймать, потому что TreeSet<Object> не накладывает никакого ограничения на этапе компиляции на то, какие "сравнимые" типы элементов используются вместе, поэтому сбой проявляется только во время выполнения как ClassCastException.',
       },
     },
   ],
@@ -1305,6 +1401,54 @@ const extra = {
           'Лямбда `() -> "Value"` предоставляет реализацию единственного абстрактного метода Supplier, `T get()`: она не принимает параметров (соответствует пустым скобкам), а её тело — единственное выражение, "Value", которое становится неявным возвращаемым значением этой лямбды-выражения. Вызов sup.get(), таким образом, просто выполняет тело этой лямбды и возвращает строку "Value", которая и печатается — сам синтаксис лямбды никогда не является частью вывода во время выполнения, это чисто исходный код, описывающий поведение.',
       },
     },
+    {
+      q: 'What happens at compile time?\n\ninterface Calculator {\n  int op(int a, int b);\n  int reset();\n}\n\nCalculator c = (a, b) -> a + b;',
+      options: [
+        'Compilation error — Calculator declares two abstract methods, so it is not a valid functional interface target for a lambda',
+        'It compiles fine; reset() is simply never implemented',
+        'It compiles fine; the lambda implements both methods automatically',
+        'It compiles fine because interfaces only need one method implemented',
+      ],
+      correct: [0],
+      explanation:
+        'A lambda expression can only be assigned to a functional interface — one with exactly one abstract method (a "Single Abstract Method" type) — because the lambda\'s single block of code needs to map onto exactly one method signature. Calculator declares two abstract methods, op() and reset(), so there is no unambiguous single method for the lambda to implement, and the compiler rejects the assignment with an error to the effect that Calculator is not a functional interface. Adding @FunctionalInterface above such a declaration would have caught this mistake even earlier, at the interface\'s own declaration site.',
+      ru: {
+        question: 'Что произойдёт на этапе компиляции?\n\ninterface Calculator {\n  int op(int a, int b);\n  int reset();\n}\n\nCalculator c = (a, b) -> a + b;',
+        options: [
+          'Ошибка компиляции — Calculator объявляет два абстрактных метода, поэтому это не валидная функциональная цель для лямбды',
+          'Компилируется нормально; reset() просто никогда не реализуется',
+          'Компилируется нормально; лямбда автоматически реализует оба метода',
+          'Компилируется нормально, потому что интерфейсам нужно реализовать только один метод',
+        ],
+        explanation:
+          'Лямбда-выражение можно присвоить только функциональному интерфейсу — с ровно одним абстрактным методом (тип "Single Abstract Method") — потому что единственный блок кода лямбды должен сопоставиться ровно с одной сигнатурой метода. Calculator объявляет два абстрактных метода, op() и reset(), поэтому нет однозначного единственного метода для реализации лямбдой, и компилятор отклоняет присваивание с ошибкой о том, что Calculator не является функциональным интерфейсом. Добавление @FunctionalInterface над таким объявлением поймало бы эту ошибку ещё раньше, в месте объявления самого интерфейса.',
+      },
+      variantGroup: 'ocp-lambda-not-functional-interface',
+    },
+    {
+      q: 'What happens at compile time?\n\ninterface Formatter {\n  String format(String input);\n  void reset();\n}\n\nFormatter f = input -> input.toUpperCase();',
+      options: [
+        'Compilation error — Formatter declares two abstract methods, so it is not a valid functional interface target for a lambda',
+        'It compiles fine; reset() is simply never implemented',
+        'It compiles fine; the lambda implements both methods automatically',
+        'It compiles fine because interfaces only need one method implemented',
+      ],
+      correct: [0],
+      variantGroup: 'ocp-lambda-not-functional-interface',
+      explanation:
+        'The same restriction applies regardless of the interface\'s or methods\' names: a lambda requires exactly one abstract method on its target type, and Formatter has two — format() and reset() — so it fails the functional-interface requirement just like the Calculator example. The compiler has no way to know reset() should simply be "left unimplemented", since a lambda inherently provides the body for one, and only one, abstract method.',
+      ru: {
+        question: 'Что произойдёт на этапе компиляции?\n\ninterface Formatter {\n  String format(String input);\n  void reset();\n}\n\nFormatter f = input -> input.toUpperCase();',
+        options: [
+          'Ошибка компиляции — Formatter объявляет два абстрактных метода, поэтому это не валидная функциональная цель для лямбды',
+          'Компилируется нормально; reset() просто никогда не реализуется',
+          'Компилируется нормально; лямбда автоматически реализует оба метода',
+          'Компилируется нормально, потому что интерфейсам нужно реализовать только один метод',
+        ],
+        explanation:
+          'То же самое ограничение действует независимо от названий интерфейса или методов: лямбде требуется ровно один абстрактный метод у целевого типа, а у Formatter их два — format() и reset() — поэтому он не проходит требование функционального интерфейса, точно как в примере с Calculator. У компилятора нет способа узнать, что reset() просто должен быть "оставлен нереализованным", поскольку лямбда по своей природе предоставляет тело ровно для одного абстрактного метода.',
+      },
+    },
   ],
   streams: [
     {
@@ -1318,6 +1462,54 @@ const extra = {
         options: ['2', '3', '1', '4'],
         explanation:
           'filter(s -> s.length() > 2) оставляет только элементы, чья длина строго больше 2. Проверяя каждый исходный элемент: "a" имеет длину 1 (исключается), "bb" имеет длину 2 (исключается, так как 2 не строго больше 2), "ccc" имеет длину 3 (включается), "dddd" имеет длину 4 (включается) — ровно два элемента проходят фильтр. count(), терминальная операция, затем просто сообщает, сколько элементов дошло через весь конвейер, возвращая значение long 2.',
+      },
+    },
+    {
+      q: 'What happens at runtime?\n\nStream<Integer> s = Stream.of(1, 2, 3);\ns.forEach(System.out::print);\ns.forEach(System.out::print);',
+      options: [
+        'Throws IllegalStateException on the second forEach — a stream can only have one terminal operation invoked on it',
+        'It prints "123123" — the stream can be reused freely',
+        'Compilation error — forEach cannot be called twice on the same variable',
+        'The second call silently does nothing, printing "123" only once total',
+      ],
+      correct: [0],
+      explanation:
+        'A stream can be traversed by a terminal operation exactly once — once forEach() (or any other terminal operation) runs, the stream is considered consumed/closed, and any further operation attempted on that same stream instance throws IllegalStateException with a message like "stream has already been operated upon or closed". This is a deliberate design choice (unlike a List, which can be iterated repeatedly): streams are meant to describe a single pipeline of computation, not to be a reusable, storable collection.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nStream<Integer> s = Stream.of(1, 2, 3);\ns.forEach(System.out::print);\ns.forEach(System.out::print);',
+        options: [
+          'Выбрасывает IllegalStateException на втором forEach — у стрима может быть вызвана только одна терминальная операция',
+          'Печатает "123123" — стрим можно свободно переиспользовать',
+          'Ошибка компиляции — forEach нельзя вызвать дважды на одной переменной',
+          'Второй вызов молча ничего не делает, печатая "123" только один раз всего',
+        ],
+        explanation:
+          'Стрим можно обойти ровно одной терминальной операцией — как только выполняется forEach() (или любая другая терминальная операция), стрим считается потреблённым/закрытым, и любая дальнейшая операция, предпринятая над тем же экземпляром стрима, выбрасывает IllegalStateException с сообщением вроде "stream has already been operated upon or closed". Это намеренное проектное решение (в отличие от List, который можно перебирать многократно): стримы предназначены для описания одного конвейера вычислений, а не для того, чтобы быть переиспользуемой, сохраняемой коллекцией.',
+      },
+      variantGroup: 'ocp-stream-reuse-illegal-state',
+    },
+    {
+      q: 'What happens at runtime?\n\nStream<String> s = Stream.of("a", "b", "c");\nlong count = s.count();\ns.forEach(System.out::print);',
+      options: [
+        'Throws IllegalStateException on forEach — a stream can only have one terminal operation invoked on it',
+        'It prints "abc" after counting — the stream can be reused freely',
+        'Compilation error — count() and forEach() cannot both be called on the same variable',
+        'forEach silently does nothing since count() already consumed all elements',
+      ],
+      correct: [0],
+      variantGroup: 'ocp-stream-reuse-illegal-state',
+      explanation:
+        'The same one-terminal-operation-per-stream rule applies regardless of which two terminal operations are involved: count() is itself a terminal operation, so once it runs, the stream s is consumed, and the subsequent forEach() call on that same stream instance throws IllegalStateException. Getting a fresh stream (e.g., calling Stream.of(...) again, or storing the source in a Collection and calling .stream() each time it\'s needed) is the correct way to run multiple independent pipelines over the same data.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nStream<String> s = Stream.of("a", "b", "c");\nlong count = s.count();\ns.forEach(System.out::print);',
+        options: [
+          'Выбрасывает IllegalStateException на forEach — у стрима может быть вызвана только одна терминальная операция',
+          'Печатает "abc" после подсчёта — стрим можно свободно переиспользовать',
+          'Ошибка компиляции — count() и forEach() нельзя вызвать вместе на одной переменной',
+          'forEach молча ничего не делает, так как count() уже потребил все элементы',
+        ],
+        explanation:
+          'То же самое правило "одна терминальная операция на стрим" действует независимо от того, какие именно две терминальные операции задействованы: count() сам по себе — терминальная операция, поэтому как только он выполняется, стрим s потребляется, и последующий вызов forEach() на том же экземпляре стрима выбрасывает IllegalStateException. Получение свежего стрима (например, повторный вызов Stream.of(...), либо хранение источника в коллекции и вызов .stream() каждый раз, когда он нужен) — правильный способ запустить несколько независимых конвейеров над одними и теми же данными.',
       },
     },
   ],
@@ -1335,6 +1527,54 @@ const extra = {
           'IllegalStateException — подкласс RuntimeException, поэтому блок catch, объявленный для RuntimeException, точно ему соответствует (блоки catch совпадают с объявленным типом или любым его подтипом), и управление переходит в блок catch. e.getMessage() возвращает ту строку, что была передана в конструктор исключения при его создании — здесь это "bad" — а не имя класса исключения и не null (getMessage() возвращает null, только если сообщение вообще не было передано в конструктор).',
       },
     },
+    {
+      q: 'What is printed (assuming assertions are NOT enabled, i.e. no -ea flag)?\n\nassert 1 == 2 : "should fail";\nSystem.out.println("done");',
+      options: [
+        'done — assertions are disabled by default and the assert statement is a no-op',
+        'Throws AssertionError: should fail',
+        'Compilation error — the assert condition is always false',
+        'Nothing is printed',
+      ],
+      correct: [0],
+      explanation:
+        'The Java assert statement is compiled into the bytecode, but it is skipped entirely at runtime unless assertions are explicitly enabled via the -ea (or -enableassertions) JVM flag — this is off by default precisely so assertion checks (often used for internal invariants, not user-facing validation) don\'t impose a runtime cost or behavior change in normal production execution. Since -ea is not passed here, `assert 1 == 2 : "should fail";` is effectively a no-op regardless of the condition\'s truth value, and execution proceeds straight to println("done").',
+      ru: {
+        question: 'Что будет напечатано (при условии, что assertions НЕ включены, то есть без флага -ea)?\n\nassert 1 == 2 : "should fail";\nSystem.out.println("done");',
+        options: [
+          'done — assertions по умолчанию отключены, и оператор assert является no-op',
+          'Выбрасывает AssertionError: should fail',
+          'Ошибка компиляции — условие assert всегда ложно',
+          'Ничего не печатается',
+        ],
+        explanation:
+          'Оператор assert в Java компилируется в байт-код, но полностью пропускается во время выполнения, если assertions явно не включены через флаг JVM -ea (или -enableassertions) — это выключено по умолчанию именно для того, чтобы проверки assert (часто используемые для внутренних инвариантов, а не для валидации, видимой пользователю) не накладывали накладных расходов времени выполнения или изменения поведения при обычном продакшн-запуске. Так как -ea здесь не передан, `assert 1 == 2 : "should fail";` фактически является no-op независимо от истинности условия, и выполнение переходит прямо к println("done").',
+      },
+      variantGroup: 'ocp-assertions-disabled-by-default',
+    },
+    {
+      q: 'What is printed (assuming assertions are NOT enabled, i.e. no -ea flag)?\n\nassert false : "unreachable state reached";\nSystem.out.println("finished");',
+      options: [
+        'finished — assertions are disabled by default and the assert statement is a no-op',
+        'Throws AssertionError: unreachable state reached',
+        'Compilation error — asserting a constant false condition is not allowed',
+        'Nothing is printed',
+      ],
+      correct: [0],
+      variantGroup: 'ocp-assertions-disabled-by-default',
+      explanation:
+        'The same default-off behavior applies regardless of the assert message or how obviously false the condition is: without the -ea flag at launch, the JVM skips evaluating assert statements entirely, so even `assert false : "..."` never throws AssertionError in a default run. This is why assert should never be relied on for logic that must always execute (like input validation) — only for optional internal sanity checks that a developer can choose to enable during testing/debugging.',
+      ru: {
+        question: 'Что будет напечатано (при условии, что assertions НЕ включены, то есть без флага -ea)?\n\nassert false : "unreachable state reached";\nSystem.out.println("finished");',
+        options: [
+          'finished — assertions по умолчанию отключены, и оператор assert является no-op',
+          'Выбрасывает AssertionError: unreachable state reached',
+          'Ошибка компиляции — assert с константным условием false не разрешён',
+          'Ничего не печатается',
+        ],
+        explanation:
+          'То же самое поведение "выключено по умолчанию" действует независимо от сообщения assert или того, насколько очевидно ложно условие: без флага -ea при запуске JVM полностью пропускает вычисление операторов assert, поэтому даже `assert false : "..."` никогда не бросает AssertionError при обычном запуске. Именно поэтому на assert никогда нельзя полагаться для логики, которая обязана выполняться всегда (например, валидация входных данных) — только для необязательных внутренних проверок здравого смысла, которые разработчик может включить во время тестирования/отладки.',
+      },
+    },
   ],
   'java-io': [
     {
@@ -1350,6 +1590,54 @@ const extra = {
           'Paths.get("folder", "file.txt") строит Path, представляющий "folder/file.txt" (соединяя заданные сегменты подходящим для платформы разделителем). getFileName() возвращает только последний элемент этого пути — последнее имя в последовательности, игнорируя любые сегменты родительских каталогов, — здесь это "file.txt", само возвращаемое как другой Path. Печать неявно вызывает toString(), поэтому в выводе только имя файла, а не полный путь и не имя родительской папки.',
       },
     },
+    {
+      q: 'What happens at runtime when `line` is a Line instance created and serialized like this?\n\nclass Point { int x, y; }\nclass Line implements Serializable {\n  Point start = new Point();\n}\n\n// ObjectOutputStream out = ...;\n// out.writeObject(new Line());',
+      options: [
+        'Throws NotSerializableException for Point — Serializable does not automatically apply to referenced field types',
+        'It serializes fine; Point is treated as transient automatically',
+        'Compilation error — Line cannot implement Serializable while containing a non-Serializable field',
+        'It serializes fine; Point\'s fields default to 0',
+      ],
+      correct: [0],
+      explanation:
+        'Serializable is just a marker interface with no compile-time enforcement of anything about a class\'s fields — Line implements it, so the compiler is satisfied and this compiles without error. But at runtime, serializing an object requires every non-transient, non-static field to also be serializable (directly, or by being primitive), and Point does not implement Serializable at all. When ObjectOutputStream reaches the `start` field and tries to serialize the referenced Point object, it discovers Point isn\'t serializable and throws NotSerializableException naming Point specifically — the fix is either making Point implement Serializable too, or marking the `start` field `transient` if it doesn\'t need to be persisted.',
+      ru: {
+        question: 'Что произойдёт во время выполнения, когда экземпляр line класса Line создаётся и сериализуется так?\n\nclass Point { int x, y; }\nclass Line implements Serializable {\n  Point start = new Point();\n}\n\n// ObjectOutputStream out = ...;\n// out.writeObject(new Line());',
+        options: [
+          'Выбрасывает NotSerializableException для Point — Serializable не применяется автоматически к типам полей-ссылок',
+          'Сериализуется нормально; Point автоматически считается transient',
+          'Ошибка компиляции — Line не может реализовывать Serializable, содержа несериализуемое поле',
+          'Сериализуется нормально; поля Point получают значения по умолчанию 0',
+        ],
+        explanation:
+          'Serializable — это просто маркерный интерфейс без какой-либо проверки на этапе компиляции полей класса — Line его реализует, поэтому компилятор удовлетворён, и это компилируется без ошибок. Но во время выполнения сериализация объекта требует, чтобы каждое непереходное (non-transient), нестатическое поле тоже было сериализуемым (напрямую, либо будучи примитивом), а Point вообще не реализует Serializable. Когда ObjectOutputStream доходит до поля start и пытается сериализовать ссылаемый объект Point, он обнаруживает, что Point не сериализуем, и выбрасывает NotSerializableException, называя конкретно Point — исправление — либо тоже сделать Point реализующим Serializable, либо пометить поле start как transient, если его не нужно сохранять.',
+      },
+      variantGroup: 'ocp-serializable-field-not-serializable',
+    },
+    {
+      q: 'What happens at runtime when `car` is a Car instance created and serialized like this?\n\nclass Engine { int horsepower; }\nclass Car implements Serializable {\n  Engine engine = new Engine();\n}\n\n// ObjectOutputStream out = ...;\n// out.writeObject(new Car());',
+      options: [
+        'Throws NotSerializableException for Engine — Serializable does not automatically apply to referenced field types',
+        'It serializes fine; Engine is treated as transient automatically',
+        'Compilation error — Car cannot implement Serializable while containing a non-Serializable field',
+        'It serializes fine; Engine\'s fields default to 0',
+      ],
+      correct: [0],
+      variantGroup: 'ocp-serializable-field-not-serializable',
+      explanation:
+        'The same rule applies with different class names: Car implementing Serializable says nothing about whether the objects it references (like Engine) are themselves serializable — the compiler never checks that. At runtime, serializing a Car requires serializing its non-transient Engine field too, and since Engine doesn\'t implement Serializable, ObjectOutputStream throws NotSerializableException specifically naming Engine, exactly mirroring the Point/Line scenario with different class names.',
+      ru: {
+        question: 'Что произойдёт во время выполнения, когда экземпляр car класса Car создаётся и сериализуется так?\n\nclass Engine { int horsepower; }\nclass Car implements Serializable {\n  Engine engine = new Engine();\n}\n\n// ObjectOutputStream out = ...;\n// out.writeObject(new Car());',
+        options: [
+          'Выбрасывает NotSerializableException для Engine — Serializable не применяется автоматически к типам полей-ссылок',
+          'Сериализуется нормально; Engine автоматически считается transient',
+          'Ошибка компиляции — Car не может реализовывать Serializable, содержа несериализуемое поле',
+          'Сериализуется нормально; поля Engine получают значения по умолчанию 0',
+        ],
+        explanation:
+          'То же самое правило действует с другими названиями классов: то, что Car реализует Serializable, ничего не говорит о том, сериализуемы ли объекты, на которые он ссылается (например, Engine) — компилятор это никогда не проверяет. Во время выполнения сериализация Car требует сериализации и его непереходного поля engine, а поскольку Engine не реализует Serializable, ObjectOutputStream выбрасывает NotSerializableException, называя конкретно Engine, в точности зеркаля сценарий с Point/Line, но с другими названиями классов.',
+      },
+    },
   ],
   concurrency: [
     {
@@ -1363,6 +1651,54 @@ const extra = {
         options: ['2', '0', '1', 'Ошибка компиляции'],
         explanation:
           'AtomicInteger начинается со значения, переданного в его конструктор, здесь это 0. incrementAndGet() атомарно прибавляет единицу к текущему значению и возвращает новое значение; он вызывается дважды подряд, переводя внутреннее значение с 0 на 1, затем с 1 на 2. counter.get() просто читает текущее сохранённое значение без побочных эффектов, сообщая 2 — тот же результат, что дал бы обычный int в этом однопоточном примере, хотя реальная ценность AtomicInteger в том, что он гарантирует корректность этой арифметики даже когда несколько потоков вызывают incrementAndGet() одновременно, чего обычный int не обеспечивает.',
+      },
+    },
+    {
+      q: 'What is likely printed?\n\nRunnable r = () -> { throw new Exception("fail"); };',
+      options: [
+        'Compilation error — Runnable.run() does not declare a checked exception, so a lambda implementing it cannot throw one',
+        'It compiles fine; run() silently swallows the exception',
+        'It compiles fine; the exception propagates when run() is called',
+        'Compilation error — lambdas can never throw exceptions of any kind',
+      ],
+      correct: [0],
+      explanation:
+        'A lambda\'s body must be compatible with the functional interface method it implements, including which checked exceptions it\'s allowed to throw. Runnable\'s single abstract method, run(), is declared as `void run()` with no `throws` clause, meaning implementations (including lambdas) cannot throw any checked exception — only unchecked (RuntimeException-based) exceptions are allowed. Since Exception is checked, this lambda body fails to compile; Callable<V>\'s call() method, by contrast, does declare `throws Exception`, which is exactly why Callable is the appropriate functional interface when a task needs to throw checked exceptions.',
+      ru: {
+        question: 'Что, вероятно, произойдёт?\n\nRunnable r = () -> { throw new Exception("fail"); };',
+        options: [
+          'Ошибка компиляции — Runnable.run() не объявляет проверяемое исключение, поэтому реализующая его лямбда не может его бросить',
+          'Компилируется нормально; run() молча поглощает исключение',
+          'Компилируется нормально; исключение распространяется при вызове run()',
+          'Ошибка компиляции — лямбды вообще никогда не могут бросать исключения любого рода',
+        ],
+        explanation:
+          'Тело лямбды должно быть совместимо с методом функционального интерфейса, который она реализует, включая то, какие проверяемые исключения ей разрешено бросать. Единственный абстрактный метод Runnable, run(), объявлен как `void run()` без предложения throws, а значит реализации (включая лямбды) не могут бросать никакое проверяемое исключение — разрешены только непроверяемые (на основе RuntimeException). Поскольку Exception проверяемое, тело этой лямбды не компилируется; метод call() у Callable<V>, напротив, объявляет `throws Exception`, именно поэтому Callable — подходящий функциональный интерфейс, когда задаче нужно бросать проверяемые исключения.',
+      },
+      variantGroup: 'ocp-runnable-vs-callable-checked-exception',
+    },
+    {
+      q: 'What is likely printed?\n\nCallable<String> c = () -> { throw new Exception("fail"); };',
+      options: [
+        'It compiles fine — Callable.call() declares `throws Exception`, so a lambda implementing it may throw checked exceptions',
+        'Compilation error — the same restriction as Runnable applies to Callable',
+        'It compiles fine; the exception is silently swallowed',
+        'Compilation error — lambdas can never throw exceptions of any kind',
+      ],
+      correct: [0],
+      variantGroup: 'ocp-runnable-vs-callable-checked-exception',
+      explanation:
+        'Unlike Runnable\'s run(), Callable<V>\'s single abstract method is declared as `V call() throws Exception` — it explicitly permits implementations to throw any checked exception. So a lambda implementing Callable that throws Exception (or any of its subtypes) compiles without issue; the exception would actually propagate (wrapped in an ExecutionException) when the resulting Future\'s .get() is called, if this Callable were submitted to an ExecutorService. This contrast — Runnable forbids checked exceptions, Callable allows them — is exactly why the two interfaces exist as distinct options rather than one being simply preferred over the other.',
+      ru: {
+        question: 'Что, вероятно, произойдёт?\n\nCallable<String> c = () -> { throw new Exception("fail"); };',
+        options: [
+          'Компилируется нормально — Callable.call() объявляет `throws Exception`, поэтому реализующая его лямбда может бросать проверяемые исключения',
+          'Ошибка компиляции — на Callable действует то же самое ограничение, что и на Runnable',
+          'Компилируется нормально; исключение молча поглощается',
+          'Ошибка компиляции — лямбды вообще никогда не могут бросать исключения любого рода',
+        ],
+        explanation:
+          'В отличие от run() у Runnable, единственный абстрактный метод Callable<V> объявлен как `V call() throws Exception` — он явно разрешает реализациям бросать любое проверяемое исключение. Поэтому лямбда, реализующая Callable и бросающая Exception (или любой его подтип), компилируется без проблем; исключение реально распространилось бы (обёрнутое в ExecutionException) при вызове .get() у результирующего Future, если бы этот Callable был передан в ExecutorService. Этот контраст — Runnable запрещает проверяемые исключения, Callable их разрешает — именно причина, почему эти два интерфейса существуют как разные варианты, а не один просто предпочтительнее другого.',
       },
     },
   ],
@@ -1390,6 +1726,54 @@ const extra = {
           'setInt(индексПараметра, значение) связывает int-значение с конкретным плейсхолдером `?` внутри SQL-шаблона PreparedStatement, определяемым по его позиции с отсчётом от 1 — здесь индекс 1 указывает на единственный `?` в "WHERE id = ?", и драйвер подставит туда 42 (безопасно, как данные, а не как сырой текст SQL) при выполнении оператора. Это никак не связано с таймаутами запроса (отдельный метод, setQueryTimeout()), столбцами результата (которые читаются после выполнения запроса через ResultSet, а не записываются самим PreparedStatement), или ограничением количества строк (для этого setMaxRows() или SQL-конструкция LIMIT).',
       },
     },
+    {
+      q: 'What happens at runtime?\n\nResultSet rs = stmt.executeQuery("SELECT * FROM users"); // default TYPE_FORWARD_ONLY\nwhile (rs.next()) { }\nrs.previous();',
+      options: [
+        'Throws SQLException — a forward-only ResultSet does not support moving the cursor backward',
+        'It runs fine; previous() moves the cursor back to the last row',
+        'Compilation error — previous() does not exist on ResultSet',
+        'It runs fine; previous() returns false and does nothing',
+      ],
+      correct: [0],
+      explanation:
+        'A ResultSet created without specifying otherwise defaults to TYPE_FORWARD_ONLY, which explicitly only supports moving the cursor forward via next() — methods like previous(), first(), absolute(), and similar random-access/backward-movement operations are not supported on this type and throw SQLException if called. Only a ResultSet explicitly created with TYPE_SCROLL_INSENSITIVE or TYPE_SCROLL_SENSITIVE (by passing the appropriate constants when creating the Statement) supports moving backward or jumping to arbitrary positions.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nResultSet rs = stmt.executeQuery("SELECT * FROM users"); // по умолчанию TYPE_FORWARD_ONLY\nwhile (rs.next()) { }\nrs.previous();',
+        options: [
+          'Выбрасывает SQLException — ResultSet только вперёд не поддерживает перемещение курсора назад',
+          'Выполнится нормально; previous() переместит курсор обратно на последнюю строку',
+          'Ошибка компиляции — метода previous() не существует у ResultSet',
+          'Выполнится нормально; previous() вернёт false и ничего не сделает',
+        ],
+        explanation:
+          'ResultSet, созданный без явного указания иного, по умолчанию имеет тип TYPE_FORWARD_ONLY, который явно поддерживает перемещение курсора только вперёд через next() — методы вроде previous(), first(), absolute() и подобные операции произвольного доступа/перемещения назад не поддерживаются на этом типе и выбрасывают SQLException при вызове. Только ResultSet, явно созданный с TYPE_SCROLL_INSENSITIVE или TYPE_SCROLL_SENSITIVE (передачей соответствующих констант при создании Statement), поддерживает перемещение назад или переход к произвольным позициям.',
+      },
+      variantGroup: 'ocp-resultset-forward-only-backward-move',
+    },
+    {
+      q: 'What happens at runtime?\n\nResultSet rs = stmt.executeQuery("SELECT * FROM orders"); // default TYPE_FORWARD_ONLY\nrs.next();\nrs.first();',
+      options: [
+        'Throws SQLException — a forward-only ResultSet does not support jumping back to the first row',
+        'It runs fine; first() moves the cursor back to the first row',
+        'Compilation error — first() does not exist on ResultSet',
+        'It runs fine; first() returns false and does nothing',
+      ],
+      correct: [0],
+      variantGroup: 'ocp-resultset-forward-only-backward-move',
+      explanation:
+        'The same restriction applies to any backward or absolute-positioning method, not just previous(): a default TYPE_FORWARD_ONLY ResultSet only supports next(), so calling first() — which requires jumping back to (or re-establishing) the first row — throws SQLException just as previous() would. Scrollable ResultSet types must be requested explicitly up front when the Statement is created if this kind of navigation is needed.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nResultSet rs = stmt.executeQuery("SELECT * FROM orders"); // по умолчанию TYPE_FORWARD_ONLY\nrs.next();\nrs.first();',
+        options: [
+          'Выбрасывает SQLException — ResultSet только вперёд не поддерживает переход назад к первой строке',
+          'Выполнится нормально; first() переместит курсор обратно на первую строку',
+          'Ошибка компиляции — метода first() не существует у ResultSet',
+          'Выполнится нормально; first() вернёт false и ничего не сделает',
+        ],
+        explanation:
+          'То же самое ограничение действует для любого метода перемещения назад или абсолютного позиционирования, а не только previous(): ResultSet с типом по умолчанию TYPE_FORWARD_ONLY поддерживает только next(), поэтому вызов first() — который требует перейти назад к (или заново установить) первой строке — выбрасывает SQLException точно так же, как это сделал бы previous(). Прокручиваемые типы ResultSet нужно явно запрашивать заранее при создании Statement, если такая навигация необходима.',
+      },
+    },
   ],
   'date-time': [
     {
@@ -1403,6 +1787,54 @@ const extra = {
         options: ['2024-02-29', '2024-03-01', '2024-02-28', 'Ошибка компиляции'],
         explanation:
           '2024 делится на 4 и не является "вековым" годом, которому дополнительно требовалось бы делиться на 400, поэтому это високосный год, а значит в феврале того года 29 дней, а не обычные 28. plusDays(1) возвращает новый LocalDate на один календарный день позже исходного — поскольку в 2024 году есть 29 февраля, прибавление одного дня к 28 февраля корректно приводит к 29 февраля, не переходя на март. Арифметика дат LocalDate полностью учитывает високосные годы, поэтому этот расчёт обрабатывается корректно без какой-либо специальной обработки в коде приложения.',
+      },
+    },
+    {
+      q: 'What happens at runtime?\n\nDateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM/dd/yyyy");\nLocalDate d = LocalDate.parse("2024-01-15", fmt);',
+      options: [
+        'Throws DateTimeParseException — the input text uses dashes, but the pattern expects slash-separated MM/dd/yyyy',
+        'It parses fine as January 15, 2024 — separators are ignored by parse()',
+        'Compilation error — ofPattern() and parse() are incompatible methods',
+        'It parses fine, but produces the wrong date silently',
+      ],
+      correct: [0],
+      explanation:
+        'DateTimeFormatter.parse() matches the input text against the formatter\'s pattern character-by-character, including any literal separator characters embedded in the pattern — "MM/dd/yyyy" expects slashes specifically at those positions. The input "2024-01-15" uses dashes and puts the year first rather than the month, so it does not match the expected pattern shape at all, and parse() throws DateTimeParseException describing exactly where the mismatch occurred. Formatters are strict about matching their exact pattern, not just "some date-like text" — the pattern used to parse must correspond to the actual format of the input string.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nDateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM/dd/yyyy");\nLocalDate d = LocalDate.parse("2024-01-15", fmt);',
+        options: [
+          'Выбрасывает DateTimeParseException — входной текст использует дефисы, а шаблон ожидает MM/dd/yyyy через слэши',
+          'Парсится нормально как 15 января 2024 — разделители игнорируются parse()',
+          'Ошибка компиляции — ofPattern() и parse() несовместимые методы',
+          'Парсится нормально, но молча выдаёт неверную дату',
+        ],
+        explanation:
+          'DateTimeFormatter.parse() сопоставляет входной текст с шаблоном форматтера посимвольно, включая любые литеральные символы-разделители, встроенные в шаблон — "MM/dd/yyyy" ожидает именно слэши в этих позициях. Входная строка "2024-01-15" использует дефисы и ставит год первым, а не месяц, поэтому она вообще не соответствует ожидаемой форме шаблона, и parse() выбрасывает DateTimeParseException, описывающее ровно то место, где произошло несоответствие. Форматтеры строги в соответствии своему точному шаблону, а не просто "какому-то похожему на дату тексту" — используемый для парсинга шаблон должен соответствовать реальному формату входной строки.',
+      },
+      variantGroup: 'ocp-formatter-pattern-mismatch',
+    },
+    {
+      q: 'What happens at runtime?\n\nDateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");\nLocalDate d = LocalDate.parse("12/31/2024", fmt);',
+      options: [
+        'Throws DateTimeParseException — the input text uses slashes, but the pattern expects dash-separated dd-MM-yyyy',
+        'It parses fine as December 31, 2024 — separators are ignored by parse()',
+        'Compilation error — ofPattern() and parse() are incompatible methods',
+        'It parses fine, but produces the wrong date silently',
+      ],
+      correct: [0],
+      variantGroup: 'ocp-formatter-pattern-mismatch',
+      explanation:
+        'The same strict-matching behavior applies regardless of which specific pattern and input are mismatched: "dd-MM-yyyy" requires dash separators with day first, but "12/31/2024" uses slashes with month first — neither the separators nor the field order line up with the pattern, so parse() throws DateTimeParseException rather than guessing at an interpretation. The underlying lesson is identical to the first version of this question: the DateTimeFormatter pattern and the actual text being parsed must structurally agree, or parsing fails loudly rather than silently misinterpreting the date.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nDateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");\nLocalDate d = LocalDate.parse("12/31/2024", fmt);',
+        options: [
+          'Выбрасывает DateTimeParseException — входной текст использует слэши, а шаблон ожидает dd-MM-yyyy через дефисы',
+          'Парсится нормально как 31 декабря 2024 — разделители игнорируются parse()',
+          'Ошибка компиляции — ofPattern() и parse() несовместимые методы',
+          'Парсится нормально, но молча выдаёт неверную дату',
+        ],
+        explanation:
+          'То же самое строгое поведение сопоставления действует независимо от того, какие конкретно шаблон и вход не совпадают: "dd-MM-yyyy" требует дефисы-разделители с днём первым, а "12/31/2024" использует слэши с месяцем первым — ни разделители, ни порядок полей не совпадают с шаблоном, поэтому parse() выбрасывает DateTimeParseException, а не гадает об интерпретации. Лежащий в основе урок идентичен первой версии этого вопроса: шаблон DateTimeFormatter и реально разбираемый текст должны структурно совпадать, иначе разбор явно проваливается, а не молча неверно интерпретирует дату.',
       },
     },
   ],
