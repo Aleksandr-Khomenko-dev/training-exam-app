@@ -1169,6 +1169,34 @@ const extra = {
           'Java вычисляет операторы + слева направо, и смысл + (арифметическое сложение или конкатенация строк) определяется независимо на каждом шаге, исходя из типов операндов в этой точке. 1 + 2 — это два операнда int, поэтому это арифметическое сложение, дающее int 3. Затем у 3 + "3" справа стоит String, что заставляет + означать конкатенацию начиная с этого места, преобразуя int 3 в текст "3" и соединяя его с литералом "3", получая строку "33". Если бы выражение было записано как "3" + 1 + 2, самый первый + уже был бы конкатенацией, дав "312" — порядок появления операндов имеет огромное значение для смешанных выражений со String и числами.',
       },
     },
+    {
+      q: 'What is printed?\n\nSystem.out.println(1 + 2 + "3");',
+      options: ['33', '123', '15', 'Compilation error'],
+      correct: [0],
+      variantGroup: 'oca-string-concat-order',
+      explanation:
+        'Java evaluates left to right, and the type of `+` at each step depends on its operands at that point: 1 + 2 are both int, so that + performs arithmetic addition, giving 3; then 3 + "3" has a String on the right, so + switches to string concatenation, converting 3 to text and joining it with "3", giving "33". Once a `+` chain hits a String operand, every `+` after that point in the chain is string concatenation, but any `+` evaluated before that point (purely between numbers) is still plain arithmetic.',
+      ru: {
+        question: 'Что будет напечатано?\n\nSystem.out.println(1 + 2 + "3");',
+        options: ['33', '123', '15', 'Ошибка компиляции'],
+        explanation:
+          'Java вычисляет слева направо, и тип `+` на каждом шаге зависит от его операндов в этой точке: 1 + 2 оба int, поэтому этот + выполняет арифметическое сложение, давая 3; затем 3 + "3" имеет String справа, поэтому + переключается на конкатенацию строк, превращая 3 в текст и соединяя его с "3", давая "33". Как только цепочка `+` встречает операнд String, каждый `+` после этой точки в цепочке — конкатенация строк, но любой `+`, вычисленный до этой точки (чисто между числами), остаётся обычной арифметикой.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nSystem.out.println("1" + 2 + 3);',
+      options: ['123', '6', '33', 'Compilation error'],
+      correct: [0],
+      variantGroup: 'oca-string-concat-order',
+      explanation:
+        'The same left-to-right rule applies, but here the String appears first: "1" + 2 immediately switches to string concatenation (since the left operand is already a String), giving "12"; then "12" + 3 is also string concatenation (the left operand is now a String), giving "123". Because the String appears at the very start of the chain this time, arithmetic addition never gets a chance to occur at all — every `+` in this expression is concatenation, which is exactly the contrast this pair is meant to highlight against `1 + 2 + "3"`.',
+      ru: {
+        question: 'Что будет напечатано?\n\nSystem.out.println("1" + 2 + 3);',
+        options: ['123', '6', '33', 'Ошибка компиляции'],
+        explanation:
+          'Действует то же самое правило слева направо, но здесь String появляется первым: "1" + 2 сразу переключается на конкатенацию строк (так как левый операнд уже String), давая "12"; затем "12" + 3 тоже конкатенация строк (левый операнд теперь String), давая "123". Поскольку в этот раз String стоит в самом начале цепочки, арифметическому сложению вообще ни разу не выпадает шанс произойти — каждый `+` в этом выражении является конкатенацией, что и есть тот самый контраст, который эта пара призвана подчеркнуть по сравнению с `1 + 2 + "3"`.',
+      },
+    },
   ],
   'data-types': [
     {
@@ -1182,6 +1210,34 @@ const extra = {
         options: ['2.0', '2.5', '2', 'Ошибка компиляции'],
         explanation:
           'Правая часть `5 / 2` вычисляется полностью первой, и и 5, и 2 — int-литералы, поэтому это целочисленное деление, дающее int 2 — то, что результат позже будет присвоен переменной double, никак не влияет на то, как выполняется само деление, потому что Java определяет смысл выражения по типам его собственных операндов, а не по типу целевой переменной. Только после того, как вычислен этот целочисленный результат 2, присваивание переменной `double d` расширяет его до 2.0. Чтобы действительно получить дробный результат вроде 2.5, хотя бы один операнд самого деления уже должен быть значением с плавающей точкой, например `5.0 / 2` или `5 / 2.0`.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nbyte b = (byte) 130;\nSystem.out.println(b);',
+      options: ['-126', '130', '-1', 'Compilation error'],
+      correct: [0],
+      variantGroup: 'oca-byte-overflow-cast',
+      explanation:
+        'byte is an 8-bit signed type holding values from -128 to 127, so 130 does not fit and requires the explicit narrowing cast shown here to compile at all. The cast does not clamp or round the value — it truncates to the low 8 bits and reinterprets them as a signed byte using two\'s complement, which wraps values outside the valid range around by effectively subtracting 256 when the result would otherwise land just above the max: 130 - 256 = -126.',
+      ru: {
+        question: 'Что будет напечатано?\n\nbyte b = (byte) 130;\nSystem.out.println(b);',
+        options: ['-126', '130', '-1', 'Ошибка компиляции'],
+        explanation:
+          'byte — это 8-битный знаковый тип, хранящий значения от -128 до 127, поэтому 130 в него не помещается и требует явного сужающего каста, показанного здесь, чтобы вообще скомпилироваться. Каст не обрезает и не округляет значение — он усекает до младших 8 бит и переинтерпретирует их как знаковый байт через дополнительный код, что оборачивает значения за пределами валидного диапазона, по сути вычитая 256, когда результат иначе оказался бы чуть выше максимума: 130 - 256 = -126.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nbyte b = (byte) 200;\nSystem.out.println(b);',
+      options: ['-56', '200', '-128', 'Compilation error'],
+      correct: [0],
+      variantGroup: 'oca-byte-overflow-cast',
+      explanation:
+        'Same overflow rule, different starting value: 200 is outside byte\'s -128..127 range, so the explicit cast truncates it to its low 8 bits and reinterprets the result as signed, wrapping it around by subtracting 256: 200 - 256 = -56. The general pattern to remember is that casting an out-of-range int to byte effectively computes the value modulo 256, then reinterprets anything 128 or above in that 0-255 window as negative.',
+      ru: {
+        question: 'Что будет напечатано?\n\nbyte b = (byte) 200;\nSystem.out.println(b);',
+        options: ['-56', '200', '-128', 'Ошибка компиляции'],
+        explanation:
+          'То же самое правило переполнения, другое исходное значение: 200 выходит за диапазон byte -128..127, поэтому явный каст усекает его до младших 8 бит и переинтерпретирует результат как знаковый, оборачивая его вычитанием 256: 200 - 256 = -56. Общий паттерн, который стоит запомнить: приведение выходящего за диапазон int к byte по сути вычисляет значение по модулю 256, а затем переинтерпретирует всё, что 128 и выше в этом окне 0-255, как отрицательное.',
       },
     },
   ],
@@ -1199,6 +1255,34 @@ const extra = {
           'Внутри правой части выражения действует обычный приоритет операторов, точно как в арифметике: умножение выполняется раньше вычитания, поэтому сначала вычисляется 2 * 3, давая 6, а затем 5 - 6 даёт -1. x += (-1) — это ровно сокращение для x = x + (-1), поэтому x становится 10 + (-1) = 9. Составные операторы присваивания вроде += также неявно вставляют приведение к типу переменной слева, что здесь не заметно, так как всё уже int, но это отдельный полезный для экзамена факт о работе +=.',
       },
     },
+    {
+      q: 'What is printed?\n\nint result = 10 % 3 + 2 * 4;\nSystem.out.println(result);',
+      options: ['9', '48', '14', '6'],
+      correct: [0],
+      variantGroup: 'oca-operator-precedence-arith',
+      explanation:
+        '% and * both bind tighter than +, and % and * share the same precedence level with each other, so they are each evaluated before the addition: 10 % 3 is 1 (remainder of 10 / 3), and 2 * 4 is 8. Adding those partial results, 1 + 8, gives 9. A common mistake is evaluating strictly left to right ignoring precedence, which would incorrectly compute (10 % 3 + 2) * 4.',
+      ru: {
+        question: 'Что будет напечатано?\n\nint result = 10 % 3 + 2 * 4;\nSystem.out.println(result);',
+        options: ['9', '48', '14', '6'],
+        explanation:
+          '% и * оба связывают крепче, чем +, и % с * имеют одинаковый уровень приоритета друг с другом, поэтому каждый из них вычисляется раньше сложения: 10 % 3 равно 1 (остаток от 10 / 3), а 2 * 4 равно 8. Складывая эти частичные результаты, 1 + 8, получаем 9. Частая ошибка — вычислять строго слева направо, игнорируя приоритет, что неверно вычислило бы (10 % 3 + 2) * 4.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nint result = 20 % 6 + 3 * 5;\nSystem.out.println(result);',
+      options: ['17', '115', '25', '10'],
+      correct: [0],
+      variantGroup: 'oca-operator-precedence-arith',
+      explanation:
+        'The same precedence rule applies with different numbers: % and * are evaluated before +. 20 % 6 is 2 (remainder of 20 / 6), and 3 * 5 is 15. Adding those, 2 + 15, gives 17. As with the earlier example, evaluating strictly left to right instead of respecting precedence would produce a different, incorrect result.',
+      ru: {
+        question: 'Что будет напечатано?\n\nint result = 20 % 6 + 3 * 5;\nSystem.out.println(result);',
+        options: ['17', '115', '25', '10'],
+        explanation:
+          'То же самое правило приоритета действует с другими числами: % и * вычисляются раньше +. 20 % 6 равно 2 (остаток от 20 / 6), а 3 * 5 равно 15. Складывая их, 2 + 15, получаем 17. Как и в предыдущем примере, вычисление строго слева направо вместо соблюдения приоритета дало бы другой, неверный результат.',
+      },
+    },
   ],
   arrays: [
     {
@@ -1212,6 +1296,54 @@ const extra = {
         options: ['3', '2', '5', 'Ошибка компиляции'],
         explanation:
           'Поскольку двумерный массив в Java — это на самом деле массив независимых объектов-массивов, каждый внутренний массив может иметь совершенно другую длину, чем остальные — это называется "рваным" (jagged) массивом, и Java не требует, чтобы строки были одинакового размера, в отличие от настоящей прямоугольной матрицы в некоторых других языках. grid[0] — это {1, 2}, массив длиной 2, а grid[1] — это {3, 4, 5}, массив длиной 3; обращение к grid[1].length просто сообщает длину именно этого внутреннего массива, которая равна 3.',
+      },
+    },
+    {
+      q: 'What happens at runtime?\n\nObject[] items = new String[3];\nitems[0] = 42;',
+      options: [
+        'Throws ArrayStoreException — items is actually a String[] at runtime, and an Integer cannot be stored in it',
+        'It runs fine; autoboxing converts 42 to a compatible type',
+        'Compilation error — Object[] cannot be assigned a String[]',
+        'It runs fine and items[0] becomes null',
+      ],
+      correct: [0],
+      variantGroup: 'oca-array-covariance-store-exception',
+      explanation:
+        'Arrays in Java are covariant — a String[] can be assigned to an Object[] reference, since String is-a Object — and that assignment compiles without error. But the array\'s actual runtime type remains String[] regardless of what reference type is used to access it, and every array remembers and enforces its true element type on every store operation. items[0] = 42 autoboxes to Integer, but Integer is not a String, so the JVM detects the mismatch against the array\'s real component type at runtime and throws ArrayStoreException — a classic example of a type error that array covariance defers from compile time to runtime.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nObject[] items = new String[3];\nitems[0] = 42;',
+        options: [
+          'Выбрасывает ArrayStoreException — items на самом деле String[] во время выполнения, и Integer нельзя туда сохранить',
+          'Выполнится нормально; автобоксинг преобразует 42 в совместимый тип',
+          'Ошибка компиляции — Object[] нельзя присвоить String[]',
+          'Выполнится нормально, и items[0] станет null',
+        ],
+        explanation:
+          'Массивы в Java ковариантны — String[] можно присвоить ссылке Object[], так как String является Object — и это присваивание компилируется без ошибок. Но фактический тип массива во время выполнения остаётся String[] независимо от того, какой тип ссылки используется для доступа к нему, и каждый массив запоминает и принудительно проверяет свой истинный тип элемента при каждой операции сохранения. items[0] = 42 автобоксится в Integer, но Integer — не String, поэтому JVM обнаруживает несоответствие с реальным типом компонента массива во время выполнения и выбрасывает ArrayStoreException — классический пример ошибки типа, которую ковариантность массивов откладывает с этапа компиляции на время выполнения.',
+      },
+    },
+    {
+      q: 'What happens at runtime?\n\nObject[] items = new Double[3];\nitems[0] = "hello";',
+      options: [
+        'Throws ArrayStoreException — items is actually a Double[] at runtime, and a String cannot be stored in it',
+        'It runs fine; String is compatible with any Object[] reference',
+        'Compilation error — Object[] cannot be assigned a Double[]',
+        'It runs fine and items[0] becomes null',
+      ],
+      correct: [0],
+      variantGroup: 'oca-array-covariance-store-exception',
+      explanation:
+        'The same array covariance hazard applies regardless of which two incompatible types are involved: Double[] is assignable to Object[] at compile time because Double is-a Object, but the array\'s real runtime type remains Double[], and it enforces that on every write. Storing "hello" (a String, not a Double) triggers a runtime type check failure against the array\'s actual component type, throwing ArrayStoreException — the compiler could not catch this because, through an Object[] reference, assigning any Object (including a String) looks perfectly legal at compile time.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nObject[] items = new Double[3];\nitems[0] = "hello";',
+        options: [
+          'Выбрасывает ArrayStoreException — items на самом деле Double[] во время выполнения, и String нельзя туда сохранить',
+          'Выполнится нормально; String совместим с любой ссылкой Object[]',
+          'Ошибка компиляции — Object[] нельзя присвоить Double[]',
+          'Выполнится нормально, и items[0] станет null',
+        ],
+        explanation:
+          'Та же опасность ковариантности массивов действует независимо от того, какие два несовместимых типа задействованы: Double[] присваивается Object[] на этапе компиляции, так как Double является Object, но реальный тип массива во время выполнения остаётся Double[], и он принудительно проверяет это при каждой записи. Сохранение "hello" (String, не Double) вызывает провал проверки типа во время выполнения против реального типа компонента массива, выбрасывая ArrayStoreException — компилятор не мог это поймать, потому что через ссылку Object[] присваивание любого Object (включая String) выглядит совершенно законным на этапе компиляции.',
       },
     },
   ],
@@ -1229,6 +1361,34 @@ const extra = {
           'Часть обновления здесь — `i += 2`, а не более привычная `i++`, поэтому i увеличивается на 2 каждую итерацию, а не на 1. Прослеживая значения, которые принимает i, пока условие цикла i < 10 ещё выполняется: 0, 2, 4, 6, 8 — пять различных значений, каждое запускает одно выполнение count++, прежде чем i становится 10 и условие 10 < 10 не выполняется, завершая цикл. Итого count равен 5, а не 10 (количеству целых чисел между 0 и 10) — напоминание всегда прослеживать реальный размер шага, а не предполагать, что он равен 1.',
       },
     },
+    {
+      q: 'What is printed?\n\nint total = 0;\nfor (int i = 1; i <= 5; i++) {\n  if (i == 3) continue;\n  total += i;\n}\nSystem.out.println(total);',
+      options: ['12', '15', '9', '10'],
+      correct: [0],
+      variantGroup: 'oca-loop-continue-skip-sum',
+      explanation:
+        'continue skips the rest of the current iteration\'s body and jumps straight to the loop\'s update step (i++), without ever reaching total += i for that iteration. i runs 1 through 5; when i == 3, continue fires and 3 is never added, so total accumulates 1 + 2 + 4 + 5 = 12 — the loop still runs all 5 iterations, it just skips the accumulation for one of them.',
+      ru: {
+        question: 'Что будет напечатано?\n\nint total = 0;\nfor (int i = 1; i <= 5; i++) {\n  if (i == 3) continue;\n  total += i;\n}\nSystem.out.println(total);',
+        options: ['12', '15', '9', '10'],
+        explanation:
+          'continue пропускает остаток тела текущей итерации и сразу переходит к шагу обновления цикла (i++), так и не дойдя до total += i для этой итерации. i проходит от 1 до 5; когда i == 3, срабатывает continue, и 3 никогда не добавляется, поэтому total накапливает 1 + 2 + 4 + 5 = 12 — цикл по-прежнему выполняет все 5 итераций, просто пропускает накопление для одной из них.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nint total = 0;\nfor (int i = 1; i <= 6; i++) {\n  if (i == 4) continue;\n  total += i;\n}\nSystem.out.println(total);',
+      options: ['17', '21', '13', '18'],
+      correct: [0],
+      variantGroup: 'oca-loop-continue-skip-sum',
+      explanation:
+        'Same skip-and-accumulate pattern with a different range and skipped value: the loop runs i from 1 through 6, and when i == 4, continue skips adding it to total. The remaining values 1, 2, 3, 5, 6 get summed: 1 + 2 + 3 + 5 + 6 = 17.',
+      ru: {
+        question: 'Что будет напечатано?\n\nint total = 0;\nfor (int i = 1; i <= 6; i++) {\n  if (i == 4) continue;\n  total += i;\n}\nSystem.out.println(total);',
+        options: ['17', '21', '13', '18'],
+        explanation:
+          'Тот же самый паттерн пропуска-и-накопления с другим диапазоном и пропускаемым значением: цикл проходит i от 1 до 6, и когда i == 4, continue пропускает его добавление в total. Оставшиеся значения 1, 2, 3, 5, 6 суммируются: 1 + 2 + 3 + 5 + 6 = 17.',
+      },
+    },
   ],
   'methods-encapsulation': [
     {
@@ -1244,6 +1404,34 @@ const extra = {
           'val объявлен как private, поэтому к нему нельзя обратиться напрямую снаружи Box (b.val было бы ошибкой компиляции из Main), но getVal() объявлен с видимостью по умолчанию (package-private) и находится внутри самого Box, где приватные члены всегда полностью видны — класс всегда видит и может использовать свои собственные приватные поля, private ограничивает доступ только из *других* классов. Поскольку Main здесь находится в том же пакете, он может вызвать видимый в пакете метод getVal(), который возвращает текущее значение поля — 5, ровно как при инициализации в объявлении.',
       },
     },
+    {
+      q: 'What is printed?\n\nstatic void show(long x) { System.out.println("long:" + x); }\nstatic void show(double x) { System.out.println("double:" + x); }\n\nshow(5);',
+      options: ['long:5', 'double:5.0', 'Compilation error — ambiguous method call', 'long:5.0'],
+      correct: [0],
+      variantGroup: 'oca-overload-widening-preference',
+      explanation:
+        'Overload resolution prefers the smallest widening conversion that makes a call valid, trying each phase before moving to a broader one: an int argument can widen directly to long (a narrower "distance" in the primitive widening chain: int -> long -> float -> double) or to double, but the compiler picks the closest match it can find without requiring boxing — here that\'s the long overload, since int-to-long is a shorter widening step than int-to-double. So show(5) resolves to show(long), printing "long:5".',
+      ru: {
+        question: 'Что будет напечатано?\n\nstatic void show(long x) { System.out.println("long:" + x); }\nstatic void show(double x) { System.out.println("double:" + x); }\n\nshow(5);',
+        options: ['long:5', 'double:5.0', 'Ошибка компиляции — неоднозначный вызов метода', 'long:5.0'],
+        explanation:
+          'Разрешение перегрузки предпочитает наименьшее расширяющее преобразование, делающее вызов валидным, пробуя каждую фазу перед переходом к более широкой: аргумент int может расшириться напрямую до long (более короткая "дистанция" в цепочке расширения примитивов: int -> long -> float -> double) или до double, но компилятор выбирает ближайшее совпадение, какое может найти без упаковки — здесь это перегрузка с long, так как int-к-long — более короткий шаг расширения, чем int-к-double. Поэтому show(5) разрешается в show(long), печатая "long:5".',
+      },
+    },
+    {
+      q: 'What is printed?\n\nstatic void show(long x) { System.out.println("long:" + x); }\nstatic void show(double x) { System.out.println("double:" + x); }\n\nshow(9);',
+      options: ['long:9', 'double:9.0', 'Compilation error — ambiguous method call', 'long:9.0'],
+      correct: [0],
+      variantGroup: 'oca-overload-widening-preference',
+      explanation:
+        'The same overload resolution rule applies regardless of the specific int literal passed: widening int to long is a shorter step in the primitive widening chain than widening int to double, so the compiler always prefers the long overload for a plain int argument like 9, printing "long:9". Only if the long overload did not exist at all would the compiler fall back to widening further, to double.',
+      ru: {
+        question: 'Что будет напечатано?\n\nstatic void show(long x) { System.out.println("long:" + x); }\nstatic void show(double x) { System.out.println("double:" + x); }\n\nshow(9);',
+        options: ['long:9', 'double:9.0', 'Ошибка компиляции — неоднозначный вызов метода', 'long:9.0'],
+        explanation:
+          'То же самое правило разрешения перегрузки действует независимо от конкретного переданного int-литерала: расширение int до long — более короткий шаг в цепочке расширения примитивов, чем расширение int до double, поэтому компилятор всегда предпочитает перегрузку с long для обычного аргумента int вроде 9, печатая "long:9". Только если бы перегрузки с long вообще не существовало, компилятор откатился бы к дальнейшему расширению, до double.',
+      },
+    },
   ],
   inheritance: [
     {
@@ -1257,6 +1445,34 @@ const extra = {
         options: ['Woof', '...', 'Ошибка компиляции', 'null'],
         explanation:
           'Это прямая иллюстрация динамической диспетчеризации методов: хотя переменная an объявлена со статическим типом Animal (тип времени компиляции), объект, на который она реально ссылается во время выполнения, — это Dog. При вызове sound() на an, JVM определяет, какую реализацию sound() выполнить, исходя из реального типа объекта во время выполнения — Dog, — а не объявленного типа переменной, поэтому выполняется переопределение Dog ("Woof"), а не исходная реализация Animal ("..."). Именно этот механизм делает полиморфизм полезным: код можно писать целиком в терминах общего типа Animal, при этом автоматически получая специализированное поведение каждого конкретного подкласса.',
+      },
+    },
+    {
+      q: 'What is printed?\n\nclass Animal {\n  String name = "Animal";\n  String sound() { return "..."; }\n}\nclass Cat extends Animal {\n  String name = "Cat";\n  String sound() { return "Meow"; }\n}\n\nAnimal a = new Cat();\nSystem.out.println(a.name + " " + a.sound());',
+      options: ['Animal Meow', 'Cat Meow', 'Animal ...', 'Cat ...'],
+      correct: [0],
+      variantGroup: 'oca-field-hiding-vs-method-override',
+      explanation:
+        'Fields are resolved statically, based on the reference\'s declared type, while methods are resolved dynamically (virtual dispatch), based on the object\'s actual runtime type — these follow different rules, which is exactly what this question tests. a is declared as Animal, so a.name accesses Animal\'s own "name" field directly, ignoring the fact that the real object is a Cat with its own separate "name" field that shadows (hides) it — giving "Animal". a.sound(), however, dispatches to the overriding method on the real object\'s class, Cat, giving "Meow". Combined: "Animal Meow".',
+      ru: {
+        question: 'Что будет напечатано?\n\nclass Animal {\n  String name = "Animal";\n  String sound() { return "..."; }\n}\nclass Cat extends Animal {\n  String name = "Cat";\n  String sound() { return "Meow"; }\n}\n\nAnimal a = new Cat();\nSystem.out.println(a.name + " " + a.sound());',
+        options: ['Animal Meow', 'Cat Meow', 'Animal ...', 'Cat ...'],
+        explanation:
+          'Поля разрешаются статически, на основе объявленного типа ссылки, а методы разрешаются динамически (виртуальная диспетчеризация), на основе реального типа объекта во время выполнения — они следуют разным правилам, и именно это проверяет данный вопрос. a объявлена как Animal, поэтому a.name обращается напрямую к собственному полю "name" класса Animal, игнорируя тот факт, что реальный объект — Cat со своим отдельным полем "name", которое затеняет (скрывает) его — давая "Animal". a.sound(), однако, диспетчеризуется к переопределяющему методу реального класса объекта, Cat, давая "Meow". Вместе: "Animal Meow".',
+      },
+    },
+    {
+      q: 'What is printed?\n\nclass Vehicle {\n  String category = "Vehicle";\n  String move() { return "..."; }\n}\nclass Bicycle extends Vehicle {\n  String category = "Bicycle";\n  String move() { return "Pedal"; }\n}\n\nVehicle v = new Bicycle();\nSystem.out.println(v.category + " " + v.move());',
+      options: ['Vehicle Pedal', 'Bicycle Pedal', 'Vehicle ...', 'Bicycle ...'],
+      correct: [0],
+      variantGroup: 'oca-field-hiding-vs-method-override',
+      explanation:
+        'The same static-fields-vs-dynamic-methods split applies with different class and field names: v is declared as Vehicle, so v.category reads Vehicle\'s own field directly (field access never uses runtime polymorphism), giving "Vehicle", regardless of Bicycle\'s separate hiding field. v.move(), by contrast, is a virtual call that dispatches to Bicycle\'s override, giving "Pedal". Combined: "Vehicle Pedal" — the underlying lesson (field hiding is resolved by declared type, method overriding by actual type) is identical to the Animal/Cat version of this question.',
+      ru: {
+        question: 'Что будет напечатано?\n\nclass Vehicle {\n  String category = "Vehicle";\n  String move() { return "..."; }\n}\nclass Bicycle extends Vehicle {\n  String category = "Bicycle";\n  String move() { return "Pedal"; }\n}\n\nVehicle v = new Bicycle();\nSystem.out.println(v.category + " " + v.move());',
+        options: ['Vehicle Pedal', 'Bicycle Pedal', 'Vehicle ...', 'Bicycle ...'],
+        explanation:
+          'То же самое разделение статических полей и динамических методов действует с другими именами класса и поля: v объявлена как Vehicle, поэтому v.category читает собственное поле Vehicle напрямую (доступ к полю никогда не использует полиморфизм времени выполнения), давая "Vehicle", независимо от отдельного затеняющего поля Bicycle. v.move(), напротив, это виртуальный вызов, диспетчеризующийся к переопределению Bicycle, давая "Pedal". Вместе: "Vehicle Pedal" — лежащий в основе урок (скрытие полей разрешается по объявленному типу, переопределение методов — по реальному типу) идентичен версии этого вопроса с Animal/Cat.',
       },
     },
   ],
@@ -1284,6 +1500,54 @@ const extra = {
           'У arr длина 2, поэтому допустимые индексы — только 0 и 1; запись в arr[5] немедленно выбрасывает ArrayIndexOutOfBoundsException во время выполнения. Это исключение точно совпадает с типом, объявленным в catch, поэтому управление переходит туда, печатая "Caught" — теперь исключение считается обработанным и дальше не распространяется. Независимо от того, завершился ли блок try нормально или выбросил пойманное исключение, блок finally всегда выполняется после этого как последний шаг перед завершением всей конструкции try/catch/finally, также печатая "Finally"; обе строки печатаются именно в таком порядке, одна за другой.',
       },
     },
+    {
+      q: 'What happens at compile time / runtime?\n\nstatic void risky() throws java.io.IOException {\n  throw new java.io.IOException("fail");\n}\n\npublic static void main(String[] args) {\n  risky();\n}',
+      options: [
+        'Compilation error — IOException is checked, and main() neither catches it nor declares throws IOException',
+        'It compiles and prints nothing, silently swallowing the exception',
+        'It compiles and throws IOException at runtime, which is allowed since main() is special',
+        'It compiles fine because risky() already declares throws IOException',
+      ],
+      correct: [0],
+      variantGroup: 'oca-checked-exception-must-handle',
+      explanation:
+        'IOException extends Exception (not RuntimeException), making it a checked exception, and Java enforces at compile time that any code calling a method declared `throws IOException` must either handle it in a try/catch or itself declare `throws IOException` to pass the obligation to its own caller. main() here does neither — it just calls risky() with no try/catch and no throws clause of its own — so this fails to compile. Declaring `throws` on risky() only shifts the *obligation* to its callers; it does not exempt main() from also having to satisfy that same obligation.',
+      ru: {
+        question: 'Что произойдёт на этапе компиляции / выполнения?\n\nstatic void risky() throws java.io.IOException {\n  throw new java.io.IOException("fail");\n}\n\npublic static void main(String[] args) {\n  risky();\n}',
+        options: [
+          'Ошибка компиляции — IOException проверяемое, а main() ни перехватывает его, ни объявляет throws IOException',
+          'Компилируется и ничего не печатает, молча поглощая исключение',
+          'Компилируется и бросает IOException во время выполнения, что допустимо, так как main() особенный',
+          'Компилируется нормально, потому что risky() уже объявляет throws IOException',
+        ],
+        explanation:
+          'IOException расширяет Exception (не RuntimeException), делая его проверяемым исключением, и Java принудительно требует на этапе компиляции, чтобы любой код, вызывающий метод, объявленный с `throws IOException`, либо обработал его в try/catch, либо сам объявил `throws IOException`, передав обязательство своему вызывающему коду. main() здесь не делает ни того, ни другого — просто вызывает risky() без try/catch и без собственного предложения throws — поэтому это не скомпилируется. Объявление `throws` у risky() лишь переносит *обязательство* на вызывающий код; оно не освобождает main() от необходимости тоже выполнить это же обязательство.',
+      },
+    },
+    {
+      q: 'class InvalidOrderException extends Exception {\n  public InvalidOrderException(String msg) { super(msg); }\n}\n\nstatic void process() throws InvalidOrderException {\n  throw new InvalidOrderException("bad order");\n}\n\npublic static void main(String[] args) {\n  process();\n}\n\nWhat happens at compile time?',
+      options: [
+        'Compilation error — InvalidOrderException is checked, and main() neither catches it nor declares throws InvalidOrderException',
+        'It compiles and prints nothing, silently swallowing the exception',
+        'It compiles and throws InvalidOrderException at runtime, which is allowed since main() is special',
+        'It compiles fine because process() already declares throws InvalidOrderException',
+      ],
+      correct: [0],
+      variantGroup: 'oca-checked-exception-must-handle',
+      explanation:
+        'The same enforcement applies to any custom checked exception, not just built-in ones: InvalidOrderException extends Exception directly, so it is checked, and main() calling process() without a try/catch or its own `throws InvalidOrderException` fails to compile — exactly the same rule as the built-in IOException version of this scenario, just with a custom exception class in place of a standard library one.',
+      ru: {
+        question: 'class InvalidOrderException extends Exception {\n  public InvalidOrderException(String msg) { super(msg); }\n}\n\nstatic void process() throws InvalidOrderException {\n  throw new InvalidOrderException("bad order");\n}\n\npublic static void main(String[] args) {\n  process();\n}\n\nЧто произойдёт на этапе компиляции?',
+        options: [
+          'Ошибка компиляции — InvalidOrderException проверяемое, а main() ни перехватывает его, ни объявляет throws InvalidOrderException',
+          'Компилируется и ничего не печатает, молча поглощая исключение',
+          'Компилируется и бросает InvalidOrderException во время выполнения, что допустимо, так как main() особенный',
+          'Компилируется нормально, потому что process() уже объявляет throws InvalidOrderException',
+        ],
+        explanation:
+          'То же самое принуждение действует для любого пользовательского проверяемого исключения, а не только для встроенных: InvalidOrderException напрямую расширяет Exception, поэтому оно проверяемое, и main(), вызывающий process() без try/catch или собственного `throws InvalidOrderException`, не компилируется — ровно то же самое правило, что и во встроенной версии этого сценария с IOException, просто с пользовательским классом исключения вместо класса стандартной библиотеки.',
+      },
+    },
   ],
   'core-api': [
     {
@@ -1297,6 +1561,54 @@ const extra = {
         options: ['4', '8', '6', 'Ошибка компиляции'],
         explanation:
           'trim() возвращает новую строку, из которой удалены ведущие и завершающие символы со значением меньше или равным пробелу (U+0020) — на практике это убирает обычные ведущие/завершающие пробельные символы. Исходная строка "  Java  " содержит два ведущих пробела, четыре буквы J-a-v-a и два завершающих пробела; trim() убирает только внешние пробелы, оставляя ровно "Java", у которой length() равно 4. Поскольку String неизменяем, сама переменная s никогда не меняется — trim() возвращает совершенно новую строку, у которой в этом цепочном выражении сразу же вызывается .length().',
+      },
+    },
+    {
+      q: 'What happens at runtime?\n\nList<String> list = Arrays.asList("a", "b", "c");\nlist.add("d");',
+      options: [
+        'Throws UnsupportedOperationException — Arrays.asList() returns a fixed-size list backed by the array; structural changes are not allowed',
+        'It runs fine; list becomes ["a", "b", "c", "d"]',
+        'Compilation error — asList() results cannot be reassigned to a List variable',
+        'It runs fine but silently ignores the add, leaving list unchanged',
+      ],
+      correct: [0],
+      variantGroup: 'oca-arrays-aslist-fixed-size',
+      explanation:
+        'Arrays.asList() returns a fixed-size List view directly backed by the underlying array — it supports element replacement via set() (which just writes into the same backing array slot), but it explicitly forbids anything that would change the list\'s size, since that\'s not something an array itself can do. add() attempts to grow the list, and List.of()-style fixed-size views (Arrays.asList() predates List.of() but shares this restriction on size-changing operations) throw UnsupportedOperationException rather than silently failing or somehow resizing the backing array.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nList<String> list = Arrays.asList("a", "b", "c");\nlist.add("d");',
+        options: [
+          'Выбрасывает UnsupportedOperationException — Arrays.asList() возвращает список фиксированного размера, опирающийся на массив; структурные изменения не разрешены',
+          'Выполнится нормально; list станет ["a", "b", "c", "d"]',
+          'Ошибка компиляции — результат asList() нельзя присвоить переменной List',
+          'Выполнится нормально, но молча проигнорирует add, оставив list без изменений',
+        ],
+        explanation:
+          'Arrays.asList() возвращает List фиксированного размера, напрямую опирающийся на лежащий в основе массив — он поддерживает замену элементов через set() (что просто записывает в тот же слот массива), но явно запрещает всё, что изменило бы размер списка, поскольку сам массив на это не способен. add() пытается увеличить список, и представления фиксированного размера в стиле List.of() (Arrays.asList() появился раньше List.of(), но разделяет это ограничение на изменяющие размер операции) выбрасывают UnsupportedOperationException, а не молча проваливаются или каким-то образом меняют размер лежащего в основе массива.',
+      },
+    },
+    {
+      q: 'What happens at runtime?\n\nList<String> list = Arrays.asList("x", "y", "z");\nlist.remove(0);',
+      options: [
+        'Throws UnsupportedOperationException — Arrays.asList() returns a fixed-size list backed by the array; structural changes are not allowed',
+        'It runs fine; list becomes ["y", "z"]',
+        'Compilation error — remove() requires an Object argument, not an int, on this list type',
+        'It runs fine but silently ignores the removal, leaving list unchanged',
+      ],
+      correct: [0],
+      variantGroup: 'oca-arrays-aslist-fixed-size',
+      explanation:
+        'The same fixed-size restriction applies to remove() as to add(): both are structural modifications that would change the list\'s size, which a fixed-size, array-backed view from Arrays.asList() cannot support, so remove(0) throws UnsupportedOperationException just like add() would. Only non-structural operations like set() (replacing an element in place) or read operations like get()/size() are permitted on this kind of list.',
+      ru: {
+        question: 'Что произойдёт во время выполнения?\n\nList<String> list = Arrays.asList("x", "y", "z");\nlist.remove(0);',
+        options: [
+          'Выбрасывает UnsupportedOperationException — Arrays.asList() возвращает список фиксированного размера, опирающийся на массив; структурные изменения не разрешены',
+          'Выполнится нормально; list станет ["y", "z"]',
+          'Ошибка компиляции — remove() требует аргумент Object, а не int, у этого типа списка',
+          'Выполнится нормально, но молча проигнорирует удаление, оставив list без изменений',
+        ],
+        explanation:
+          'То же самое ограничение фиксированного размера действует для remove(), что и для add(): обе — структурные модификации, изменяющие размер списка, что представление фиксированного размера на основе массива от Arrays.asList() поддержать не может, поэтому remove(0) выбрасывает UnsupportedOperationException, точно как это сделал бы add(). Только неструктурные операции вроде set() (замена элемента на месте) или операции чтения вроде get()/size() разрешены на списке такого рода.',
       },
     },
   ],
