@@ -42,6 +42,52 @@ export const studyTips = {
     ru: 'Повторите неизменяемость String, цепочки вызовов StringBuilder и точное поведение частых методов ArrayList/String — многие ошибки из-за предположения, что метод изменяет объект, хотя он возвращает новое значение.',
   },
 
+  // ---- OCP Java 17 (1Z0-829) ----
+  'java17-syntax-types': {
+    en: 'Drill var type inference, text block whitespace-stripping rules, and date/time arithmetic clamping (e.g. plusMonths on the 31st) — these "what does this evaluate to" details are the exam\'s bread and butter.',
+    ru: 'Потренируйтесь на выводе типа var, правилах обрезания пробелов в текстовых блоках и обрезании при арифметике дат/времени (например, plusMonths на 31-е число) — эти детали "что получится в итоге" — основа экзамена.',
+  },
+  'java17-control-flow': {
+    en: 'Review switch expression exhaustiveness (must cover every case or have a default), yield in block branches, and pattern-variable scoping with instanceof + && — trace exactly where a pattern variable is guaranteed to be in scope.',
+    ru: 'Повторите исчерпывающесть switch-выражений (должны покрывать каждый случай или иметь default), yield в блочных ветках и область видимости переменной образца с instanceof + && — точно отслеживайте, где переменная образца гарантированно видна.',
+  },
+  'java17-oop': {
+    en: 'Revisit records (compact constructors, auto-generated equals/hashCode), sealed classes (the permits list is enforced, not documentation), and private interface methods — these newer OOP features are heavily tested on 1Z0-829.',
+    ru: 'Повторите записи (компактные конструкторы, автогенерируемые equals/hashCode), sealed-классы (список permits принудительно проверяется, а не просто документация) и private-методы интерфейсов — эти более новые возможности ООП активно проверяются на 1Z0-829.',
+  },
+  'java17-exceptions': {
+    en: 'Review try-with-resources close order (reverse of declaration), suppressed exceptions when both body and close() throw, and multi-catch\'s "no related types" restriction — these are frequent exam traps.',
+    ru: 'Повторите порядок закрытия в try-with-resources (обратный порядку объявления), подавленные исключения, когда бросают и тело, и close(), и ограничение multi-catch "никаких связанных типов" — это частые ловушки экзамена.',
+  },
+  'java17-arrays-collections': {
+    en: 'Revisit List.of()/Set.of() immutability (throws on any mutator), Comparator chaining with thenComparing, and the "extends = safe read, unsafe write" wildcard rule (PECS) — a heavily tested generics concept.',
+    ru: 'Повторите неизменяемость List.of()/Set.of() (бросает исключение на любом модификаторе), цепочки Comparator с thenComparing и правило wildcard "extends = безопасно читать, небезопасно писать" (PECS) — активно проверяемая концепция дженериков.',
+  },
+  'java17-streams-lambdas': {
+    en: 'Trace stream pipelines operation by operation, review orElse vs orElseGet laziness, reduce() with an identity value, and the effectively-final rule for lambda variable capture.',
+    ru: 'Трассируйте конвейеры стримов операция за операцией, повторите ленивость orElse и orElseGet, reduce() со значением identity и правило effectively-final для захвата переменных в лямбдах.',
+  },
+  'java17-packaging-jshell': {
+    en: 'Review what a JAR manifest\'s Main-Class attribute is for, how JShell auto-creates scratch variables ($1, $2...) for bare expressions, and single-file source-code launching (`java Foo.java` without a separate javac step).',
+    ru: 'Повторите назначение атрибута Main-Class в манифесте JAR, как JShell автоматически создаёт вспомогательные переменные ($1, $2...) для голых выражений, и запуск однофайлового исходного кода (`java Foo.java` без отдельного шага javac).',
+  },
+  'java17-concurrency': {
+    en: 'Revisit submit() vs execute() (Future vs void), what synchronized actually guarantees, CompletableFuture chaining with thenApply, and why Thread.sleep() forces you to handle InterruptedException.',
+    ru: 'Повторите разницу submit() и execute() (Future и void), что на самом деле гарантирует synchronized, цепочки CompletableFuture с thenApply и почему Thread.sleep() заставляет обрабатывать InterruptedException.',
+  },
+  'java17-io': {
+    en: 'Review readLine()\'s null-at-EOF contract, Files.lines() laziness vs Files.readAllLines() eagerness, Path.relativize() navigation, and how transient fields reset on deserialization.',
+    ru: 'Повторите контракт readLine() "null при EOF", ленивость Files.lines() против энергичности Files.readAllLines(), навигацию Path.relativize() и как transient-поля сбрасываются при десериализации.',
+  },
+  'java17-jdbc': {
+    en: 'Revisit closing Connection/PreparedStatement/ResultSet via try-with-resources, PreparedStatement\'s 1-based parameter indices, and why you must call ResultSet.next() before reading any column.',
+    ru: 'Повторите закрытие Connection/PreparedStatement/ResultSet через try-with-resources, индексацию параметров PreparedStatement с 1, а не с 0, и почему нужно вызывать ResultSet.next() перед чтением любого столбца.',
+  },
+  'java17-localization': {
+    en: 'Practice constructing Locale via Locale.Builder, ResourceBundle\'s fallback-to-default-bundle behavior for missing keys, and how NumberFormat/DateTimeFormatter render differently per locale.',
+    ru: 'Потренируйтесь строить Locale через Locale.Builder, поведении отката ResourceBundle к базовому бандлу для отсутствующих ключей и том, как NumberFormat/DateTimeFormatter выводят по-разному в зависимости от локали.',
+  },
+
   // ---- OCP ----
   'class-design': {
     en: 'Review abstract classes vs. interfaces, constructor chaining rules, and the overriding rules for access modifiers/return types (covariant returns) — this is where subtle compile errors hide.',
